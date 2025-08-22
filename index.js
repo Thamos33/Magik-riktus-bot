@@ -153,7 +153,7 @@ client.on("messageCreate", async (message) => {
 
   // Ajouter de l'argent (admin only)
   if (command === "!addcoin") {
-    if (!message.member.permissions.has("Administrator")) {
+    if (!message.member.roles.cache.has("1271882131848822836")) {
       return message.reply("🚫 Tu n'as pas la permission.");
     }
 
@@ -179,7 +179,7 @@ client.on("messageCreate", async (message) => {
 
   // Retirer de l'argent (admin only)
   if (command === "!removecoin") {
-    if (!message.member.permissions.has("Administrator")) {
+    if (!message.member.roles.cache.has("1271882131848822836")) {
       return message.reply("🚫 Tu n'as pas la permission.");
     }
 
@@ -206,7 +206,7 @@ client.on("messageCreate", async (message) => {
 
   // give gift (admin only)
   if (command === "!kdo") {
-    if (!message.member.permissions.has("Administrator")) {
+    if (!message.member.roles.cache.has("1271882131848822836")) {
       return message.reply("🚫 Tu n'as pas la permission.");
     }
 
@@ -315,7 +315,7 @@ client.on("messageCreate", async (message) => {
     const embed = new EmbedBuilder()
       .setTitle("🤖 Les commandes 🤖")
       .setDescription(
-        `🔹**!magik-rusher**: explique les différentes règles de l'évenement hebdomadaire Magik-Rusher.\n🔹**!solde**: donne votre nombre de ${CURRENCY}.\n🔹**!classement**: affiche le top 10 des ${CURRENCY} et votre placement.\n🔹**!classementgeneral**: affiche le classement complet des ${CURRENCY}.\n\n🔸Commandes admin :\n🔹**!addcoins @user value**: ajout de ${CURRENCY}.\n🔹**!removecoins @user value**: retrait de ${CURRENCY}.\n🔹**!kdo @user value**: don de cadeaux en échange de ${CURRENCY}.`
+        `🔹**!magik-rusher**: explique les différentes règles de l'évenement hebdomadaire Magik-Rusher.\n🔹**!solde**: donne votre nombre de ${CURRENCY}.\n🔹**!classement**: affiche le top 10 des ${CURRENCY} et votre placement.\n🔹**!classementgeneral**: affiche le classement complet des ${CURRENCY}.\n\n🔸Commandes admin :\n🔹**!addcoin @user value**: ajout de ${CURRENCY}.\n🔹**!removecoin @user value**: retrait de ${CURRENCY}.\n🔹**!kdo @user value**: don de cadeaux en échange de ${CURRENCY}.`
       )
       .setColor("#165416");
 
