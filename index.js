@@ -213,7 +213,7 @@ client.on("messageCreate", async (message) => {
 
     // Position et solde de l'auteur
     const myBalance = await getBalance(message.author.id);
-    const myIndex = nonZero.findIndex((r) => r.userId === message.author.id);
+    const myIndex = nonZero.findIndex((r) => r.userid === message.author.id);
 
     let msg = "";
     if (myBalance > 0 && myIndex !== -1) {
@@ -226,12 +226,9 @@ client.on("messageCreate", async (message) => {
 
     msg += `**Top 10 :**\n`;
     top10.forEach((row, index) => {
-      const member = message.guild.members.cache.get(String(row.userId));
-      console.log(row.userId);
-      console.log(member);
-      console.log(row);
+      const member = message.guild.members.cache.get(String(row.userid));
       msg += `**${index + 1}.** ${
-        member ? member.displayName : `<@${row.userId}>`
+        member ? member.displayName : `<@${row.userid}>`
       } — **${row.balance}** ${CURRENCY}\n`;
     });
 
