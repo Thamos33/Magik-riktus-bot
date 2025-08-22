@@ -170,7 +170,7 @@ client.on("messageCreate", async (message) => {
     const embed = new EmbedBuilder()
       .setTitle(`Gain ${CURRENCY}`)
       .setDescription(
-        `**${amount}** ${CURRENCY} ajoutés à **${member.displayName}**. \n\nSolde : **${balance}** ${CURRENCY}`
+        `**${amount}** ${CURRENCY} ajoutés à ${`<@${member.displayName}>`}. \n\nSolde : **${balance}** ${CURRENCY}`
       ) // contenu
       .setColor("#5CA25F");
 
@@ -197,7 +197,7 @@ client.on("messageCreate", async (message) => {
     const embed = new EmbedBuilder()
       .setTitle(`Perte ${CURRENCY}`)
       .setDescription(
-        `**${amount}** ${CURRENCY} retirés à **${member.displayName}**. \n\nSolde : **${balance}** ${CURRENCY}`
+        `**${amount}** ${CURRENCY} retirés à ${`<@${member.displayName}>`}. \n\nSolde : **${balance}** ${CURRENCY}`
       ) // contenu
       .setColor("#9e0e40");
 
@@ -224,9 +224,9 @@ client.on("messageCreate", async (message) => {
     const embed = new EmbedBuilder()
       .setTitle(`🎁 Cadeaux ! 🎁`)
       .setDescription(
-        `**${amount * 30}** ${CURRENCY} retirés à **${
-          member.displayName
-        }** pour récupéré ${amount} cadeaux ! 🎁. \n\nSolde : **${balance}** ${CURRENCY}`
+        `**${
+          amount * 30
+        }** ${CURRENCY} retirés à ${`<@${member.displayName}>`} pour récupéré ${amount} cadeaux ! 🎁. \n\nSolde : **${balance}** ${CURRENCY}`
       ) // contenu
       .setColor("#9e0e40");
 
@@ -315,7 +315,7 @@ client.on("messageCreate", async (message) => {
     const embed = new EmbedBuilder()
       .setTitle("🤖 Les commandes 🤖")
       .setDescription(
-        `🔹**!magik-rusher**: explique les différentes règles de l'évenement hebdomadaire Magik-Rusher\n🔹**!solde**: donne votre nombre de ${CURRENCY}\n🔹**!classement**: affiche le top 10 des ${CURRENCY} et votre placement\n🔹**!classementgeneral**: affiche le classement complet des ${CURRENCY}`
+        `🔹**!magik-rusher**: explique les différentes règles de l'évenement hebdomadaire Magik-Rusher\n🔹**!solde**: donne votre nombre de ${CURRENCY}\n🔹**!classement**: affiche le top 10 des ${CURRENCY} et votre placement\n🔹**!classementgeneral**: affiche le classement complet des ${CURRENCY}\n\n🔸Commandes admin :\n🔹**!addcoins @user value**: ajout de magik-coins\n🔹**!removecoins @user value**: retrait de magik-coins\n🔹**!kdo @user value**: don de cadeaux`
       )
       .setColor("#165416");
 
