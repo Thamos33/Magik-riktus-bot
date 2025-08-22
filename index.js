@@ -170,7 +170,7 @@ client.on("messageCreate", async (message) => {
     const embed = new EmbedBuilder()
       .setTitle(`Gain ${CURRENCY}`)
       .setDescription(
-        `**${amount}** ${CURRENCY} ajoutés à ${`<@${member.displayName}>`}. \n\nSolde : **${balance}** ${CURRENCY}.`
+        `**${amount}** ${CURRENCY} ajoutés à ${`<@${member.id}>`}. \n\nSolde : **${balance}** ${CURRENCY}.`
       ) // contenu
       .setColor("#5CA25F");
 
@@ -197,7 +197,7 @@ client.on("messageCreate", async (message) => {
     const embed = new EmbedBuilder()
       .setTitle(`Perte ${CURRENCY}`)
       .setDescription(
-        `**${amount}** ${CURRENCY} retirés à ${`<@${member.displayName}>`}. \n\nSolde : **${balance}** ${CURRENCY}.`
+        `**${amount}** ${CURRENCY} retirés à ${`<@${member.id}>`}. \n\nSolde : **${balance}** ${CURRENCY}.`
       ) // contenu
       .setColor("#9e0e40");
 
@@ -226,7 +226,7 @@ client.on("messageCreate", async (message) => {
       .setDescription(
         `**${
           amount * 30
-        }** ${CURRENCY} retirés à ${`<@${member.displayName}>`} pour récupéré ${amount} cadeaux ! 🎁. \n\nSolde : **${balance}** ${CURRENCY}.`
+        }** ${CURRENCY} retirés à ${`<@${member.id}>`} pour récupéré ${amount} cadeaux ! 🎁. \n\nSolde : **${balance}** ${CURRENCY}.`
       ) // contenu
       .setColor("#9e0e40");
 
