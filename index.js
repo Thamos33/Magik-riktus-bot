@@ -91,7 +91,7 @@ async function removeBalance(userId, amount) {
       `INSERT INTO balances (userId, balance)
        VALUES ($1, $2)
        ON CONFLICT (userId) DO UPDATE SET balance = balances.balance - $2`,
-      [userId, -amount]
+      [userId, amount]
     );
   } catch (err) {
     console.error("❌ Erreur removeBalance:", err.message);
@@ -226,7 +226,7 @@ client.on("messageCreate", async (message) => {
 
     msg += `**Top 10 :**\n`;
     top10.forEach((row, index) => {
-      const member = message.guild.members.cache.get(row.userId);
+      const member = message.guild.members.cache.get(String(row.userId));
       msg += `**${index + 1}.** ${
         member ? member.displayName : `<@${row.userId}>`
       } — **${row.balance}** ${CURRENCY}\n`;
