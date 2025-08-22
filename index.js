@@ -230,9 +230,9 @@ client.on("messageCreate", async (message) => {
     msg += `**Top 10 :**\n`;
     top10.forEach((row, index) => {
       const member = message.guild.members.cache.get(String(row.userid));
-      msg += `**${index + 1}.** ${
-        member ? member.displayName : `<@${row.userid}>`
-      } — **${row.balance}** ${CURRENCY}\n`;
+      msg += `**${index + 1}.** ${`<@${row.userid}>`} — **${
+        row.balance
+      }** ${CURRENCY}\n`;
     });
 
     const embed = new EmbedBuilder()
@@ -255,9 +255,9 @@ client.on("messageCreate", async (message) => {
     let msg = "";
     ranking.forEach((row, index) => {
       const member = message.guild.members.cache.get(String(row.userid));
-      msg += `**${index + 1}.** ${
-        member ? member.displayName : `<@${row.userid}>`
-      } — **${row.balance}** ${CURRENCY}\n`;
+      msg += `**${index + 1}.** ${`<@${row.userid}>`} — **${
+        row.balance
+      }** ${CURRENCY}\n`;
     });
 
     const embed = new EmbedBuilder()
@@ -285,7 +285,7 @@ client.on("messageCreate", async (message) => {
     const embed = new EmbedBuilder()
       .setTitle("🤖 Les commandes 🤖")
       .setDescription(
-        `🔹**!magik-rusher**: explique les différentes règles de l'évenement hebdomadaire Magik-Rusher\n🔹**!solde**: donne votre nombre de ${CURRENCY}\n🔹**!classement**: affiche le top 10 des ${CURRENCY} et votre placement\n🔹**!classement**: affiche le classement complet des ${CURRENCY}`
+        `🔹**!magik-rusher**: explique les différentes règles de l'évenement hebdomadaire Magik-Rusher\n🔹**!solde**: donne votre nombre de ${CURRENCY}\n🔹**!classement**: affiche le top 10 des ${CURRENCY} et votre placement\n🔹**!classementgeneral**: affiche le classement complet des ${CURRENCY}`
       )
       .setColor("#165416");
 
