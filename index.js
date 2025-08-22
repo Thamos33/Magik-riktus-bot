@@ -39,7 +39,7 @@ function saveBalances() {
 }
 
 // Nom de la monnaie
-const CURRENCY = "🪙 Magik Coin";
+const CURRENCY = "🪙 Magik Coins";
 
 // Quand le bot est prêt
 client.once("ready", () => {
@@ -114,21 +114,29 @@ client.on("messageCreate", (message) => {
 
   // Classement
   if (command === "!classement") {
-    let ranking = Object.entries(balances)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 10);
+    let ranking = Object.entries(balances).sort((a, b) => b[1] - a[1]);
+    rankingTopTen = ranking.slice(0, 10);
+
+    // On récupère l'index du joueur qui a demandé le classement
+    const myIndex = ranking.findIndex(
+      ([userId]) => userId === message.author.id
+    );
+    const myBalance = balances[message.author.id] || 0;
 
     if (ranking.length === 0) {
       return message.reply("Personne n’a encore de monnaie !");
     }
 
     let msg = "🏆 **Classement** 🏆\n\n";
-    ranking.forEach(([userId, balance], index) => {
+    rankingTopTen.forEach(([userId, balance], index) => {
       const member = message.guild.members.cache.get(userId);
       msg += `**${index + 1}.** ${
         member ? member.displayName : "Utilisateur inconnu"
       } — **${balance}** ${CURRENCY}\n`;
     });
+    msg += `\n📌 **Ton classement :** ${
+      myIndex + 1
+    }ᵉ avec **${myBalance}** ${CURRENCY}`;
 
     message.channel.send(msg);
   }

@@ -1,3 +1,4 @@
 # Node.js (si tu utilises npm/yarn ou un bundler comme Vite/Webpack)
 node_modules/
 build/
+balances.json
