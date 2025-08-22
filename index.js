@@ -227,6 +227,9 @@ client.on("messageCreate", async (message) => {
     msg += `**Top 10 :**\n`;
     top10.forEach((row, index) => {
       const member = message.guild.members.cache.get(String(row.userId));
+      console.log(row.userId);
+      console.log(member);
+      console.log(row);
       msg += `**${index + 1}.** ${
         member ? member.displayName : `<@${row.userId}>`
       } — **${row.balance}** ${CURRENCY}\n`;
