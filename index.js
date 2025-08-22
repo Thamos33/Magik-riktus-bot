@@ -62,7 +62,8 @@ client.on("messageCreate", (message) => {
 
     balances[mention.id] = (balances[mention.id] || 0) + amount;
     saveBalances();
-    message.reply(`${amount} ${CURRENCY} ajoutés à ${mention.username}`);
+    const member = message.guild.members.cache.get(mention.id);
+    message.reply(`${amount} ${CURRENCY} ajoutés à ${member.displayName}`);
   }
 
   // Retirer de l'argent (admin only)
@@ -80,7 +81,8 @@ client.on("messageCreate", (message) => {
 
     balances[mention.id] = (balances[mention.id] || 0) - amount;
     saveBalances();
-    message.reply(`${amount} ${CURRENCY} retirés à ${mention.username}`);
+    const member = message.guild.members.cache.get(mention.id);
+    message.reply(`${amount} ${CURRENCY} retirés à ${member.displayName}`);
   }
 
   // Classement
@@ -95,9 +97,9 @@ client.on("messageCreate", (message) => {
 
     let msg = "🏆 **Classement** 🏆\n";
     ranking.forEach(([userId, balance], index) => {
-      const user = message.guild.members.cache.get(userId);
+      const member = message.guild.members.cache.get(userId);
       msg += `**${index + 1}.** ${
-        user ? user.user.username : "Utilisateur inconnu"
+        member ? member.displayName : "Utilisateur inconnu"
       } — ${balance} ${CURRENCY}\n`;
     });
 
