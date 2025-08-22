@@ -68,7 +68,12 @@ client.on("messageCreate", (message) => {
   if (command === "!solde") {
     const userId = message.author.id;
     const balance = balances[userId] || 0;
-    message.reply(`Tu as **${balance}** ${CURRENCY}`);
+    const embed = new EmbedBuilder()
+      .setTitle(`Mon solde`)
+      .setDescription(`Tu as **${balance}** ${CURRENCY}`) // contenu
+      .setColor("#165416");
+
+    message.channel.send({ embeds: [embed] });
   }
 
   // Ajouter de l'argent (admin only)
@@ -87,11 +92,16 @@ client.on("messageCreate", (message) => {
     balances[mention.id] = (balances[mention.id] || 0) + amount;
     saveBalances();
     const member = message.guild.members.cache.get(mention.id);
-    message.reply(
-      `**${amount}** ${CURRENCY} ajoutés à **${
-        member.displayName
-      }**. \nSolde : **${balances[mention.id]}** ${CURRENCY}`
-    );
+    const embed = new EmbedBuilder()
+      .setTitle(`Gain de ${CURRENCY}`)
+      .setDescription(
+        `**${amount}** ${CURRENCY} ajoutés à **${
+          member.displayName
+        }**. \n\nSolde : **${balances[mention.id]}** ${CURRENCY}`
+      ) // contenu
+      .setColor("#165416");
+
+    message.channel.send({ embeds: [embed] });
   }
 
   // Retirer de l'argent (admin only)
@@ -116,9 +126,9 @@ client.on("messageCreate", (message) => {
       .setDescription(
         `**${amount}** ${CURRENCY} retirés à **${
           member.displayName
-        }**. \nSolde : **${balances[mention.id]}** ${CURRENCY}`
+        }**. \n\nSolde : **${balances[mention.id]}** ${CURRENCY}`
       ) // contenu
-      .setColor("#165416"); // doré
+      .setColor("#165416");
 
     message.channel.send({ embeds: [embed] });
   }
@@ -157,11 +167,9 @@ client.on("messageCreate", (message) => {
     });
 
     const embed = new EmbedBuilder()
-      .setTitle(
-        "\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0🏆 Classement 🏆"
-      )
+      .setTitle("🏆 Classement 🏆")
       .setDescription(msg) // contenu
-      .setColor("#165416"); // doré
+      .setColor("#165416");
 
     message.channel.send({ embeds: [embed] });
   }
