@@ -127,16 +127,23 @@ client.on("messageCreate", (message) => {
       return message.reply("Personne n’a encore de monnaie !");
     }
 
-    let msg = "🏆 **Classement** 🏆\n\n";
+    let msg = "          🏆 **Classement** 🏆\n";
+    if (myBalance !== 0) {
+      msg += `**Ta place :** ${
+        myIndex + 1
+      }ᵉ avec **${myBalance}** ${CURRENCY}\n\n`;
+    } else {
+      msg += `**Ta place :** Vous n'avez pas encore de ${CURRENCY}\n\n`;
+    }
+    msg += `**Top 10 :**\n`;
     rankingTopTen.forEach(([userId, balance], index) => {
       const member = message.guild.members.cache.get(userId);
-      msg += `**${index + 1}.** ${
-        member ? member.displayName : "Utilisateur inconnu"
-      } — **${balance}** ${CURRENCY}\n`;
+      if (balance !== 0) {
+        msg += `**${index + 1}.** ${
+          member ? member.displayName : "Utilisateur inconnu"
+        } — **${balance}** ${CURRENCY}\n`;
+      }
     });
-    msg += `\n📌 **Ton classement :** ${
-      myIndex + 1
-    }ᵉ avec **${myBalance}** ${CURRENCY}`;
 
     message.channel.send(msg);
   }
