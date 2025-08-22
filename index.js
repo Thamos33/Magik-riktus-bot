@@ -161,9 +161,7 @@ client.on("messageCreate", async (message) => {
     const embed = new EmbedBuilder()
       .setTitle(`Gain ${CURRENCY}`)
       .setDescription(
-        `**${amount}** ${CURRENCY} ajoutés à **${
-          member.displayName
-        }**. \n\nSolde : **${balances[mention.id]}** ${CURRENCY}`
+        `**${amount}** ${CURRENCY} ajoutés à **${member.displayName}**. \n\nSolde : **${balance}** ${CURRENCY}`
       ) // contenu
       .setColor("#5CA25F");
 
@@ -190,9 +188,7 @@ client.on("messageCreate", async (message) => {
     const embed = new EmbedBuilder()
       .setTitle(`Perte ${CURRENCY}`)
       .setDescription(
-        `**${amount}** ${CURRENCY} retirés à **${
-          member.displayName
-        }**. \n\nSolde : **${balances[mention.id]}** ${CURRENCY}`
+        `**${amount}** ${CURRENCY} retirés à **${member.displayName}**. \n\nSolde : **${balance}** ${CURRENCY}`
       ) // contenu
       .setColor("#9e0e40");
 
