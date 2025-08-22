@@ -110,11 +110,17 @@ client.on("messageCreate", (message) => {
     balances[mention.id] = (balances[mention.id] || 0) - amount;
     saveBalances();
     const member = message.guild.members.cache.get(mention.id);
-    message.reply(
-      `**${amount}** ${CURRENCY} retirés à **${
-        member.displayName
-      }**. \nSolde : **${balances[mention.id]}** ${CURRENCY}`
-    );
+
+    const embed = new EmbedBuilder()
+      .setTitle(`Retrait de ${CURRENCY}`)
+      .setDescription(
+        `**${amount}** ${CURRENCY} retirés à **${
+          member.displayName
+        }**. \nSolde : **${balances[mention.id]}** ${CURRENCY}`
+      ) // contenu
+      .setColor("#165416"); // doré
+
+    message.channel.send({ embeds: [embed] });
   }
 
   // Classement
@@ -151,9 +157,11 @@ client.on("messageCreate", (message) => {
     });
 
     const embed = new EmbedBuilder()
-      .setTitle("\u2003\u2003🏆 Classement 🏆")
-      .setDescription(msg) // ton texte du top ici
-      .setColor("#FFD700"); // doré
+      .setTitle(
+        "\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0🏆 Classement 🏆"
+      )
+      .setDescription(msg) // contenu
+      .setColor("#165416"); // doré
 
     message.channel.send({ embeds: [embed] });
   }
