@@ -1,7 +1,8 @@
-const sqlite3 = require("sqlite3").verbose();
+import sqlite3 from "sqlite3";
+const sqlite = sqlite3.verbose();
 
 // Le fichier balances.sqlite sera créé si inexistant
-const db = new sqlite3.Database("./data/balances.sqlite", (err) => {
+const db = new sqlite.Database("./data/balances.sqlite", (err) => {
   if (err) return console.error(err.message);
   console.log("✅ Connecté à la base SQLite");
 });

@@ -1,10 +1,5 @@
-const fs = require("fs");
-const {
-  Client,
-  GatewayIntentBits,
-  Partials,
-  EmbedBuilder,
-} = require("discord.js");
+import fs from "fs";
+import { Client, GatewayIntentBits, Partials, EmbedBuilder } from "discord.js";
 
 const client = new Client({
   intents: [
