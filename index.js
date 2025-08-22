@@ -146,14 +146,13 @@ client.on("messageCreate", (message) => {
     message.channel.send({ embeds: [embed] });
   }
 
-  // Classement
+  //classement
   if (command === "!classement") {
     let ranking = Object.entries(balances).sort((a, b) => b[1] - a[1]);
-    rankingTopTen = ranking.slice(0, 10);
+    let rankingTopTen = ranking.slice(0, 10);
 
-    // On récupère l'index du joueur qui a demandé le classement
     const myIndex = ranking.findIndex(
-      ([userId]) => userId === message.author.id
+      ([userId]) => String(userId) === message.author.id
     );
     const myBalance = balances[message.author.id] || 0;
 
@@ -170,8 +169,9 @@ client.on("messageCreate", (message) => {
       msg += `**Ta place :** Vous n'avez pas encore de ${CURRENCY}\n\n`;
     }
     msg += `**Top 10 :**\n`;
+
     rankingTopTen.forEach(([userId, balance], index) => {
-      const member = message.guild.members.cache.get(userId);
+      const member = message.guild.members.cache.get(String(userId));
       if (balance !== 0) {
         msg += `**${index + 1}.** ${
           member ? member.displayName : "Utilisateur inconnu"
@@ -181,7 +181,7 @@ client.on("messageCreate", (message) => {
 
     const embed = new EmbedBuilder()
       .setTitle("🏆 Classement 🏆")
-      .setDescription(msg) // contenu
+      .setDescription(msg)
       .setColor("#FFD700");
 
     message.channel.send({ embeds: [embed] });
