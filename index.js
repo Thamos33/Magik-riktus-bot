@@ -145,7 +145,7 @@ client.on("messageCreate", async (message) => {
 
     const embed = new EmbedBuilder()
       .setTitle(`Mon solde`)
-      .setDescription(`Tu as **${balance}** ${CURRENCY}`)
+      .setDescription(`Tu as **${balance}** ${CURRENCY}.`)
       .setColor("#165416");
 
     message.channel.send({ embeds: [embed] });
@@ -170,7 +170,7 @@ client.on("messageCreate", async (message) => {
     const embed = new EmbedBuilder()
       .setTitle(`Gain ${CURRENCY}`)
       .setDescription(
-        `**${amount}** ${CURRENCY} ajoutés à ${`<@${member.displayName}>`}. \n\nSolde : **${balance}** ${CURRENCY}`
+        `**${amount}** ${CURRENCY} ajoutés à ${`<@${member.displayName}>`}. \n\nSolde : **${balance}** ${CURRENCY}.`
       ) // contenu
       .setColor("#5CA25F");
 
@@ -197,7 +197,7 @@ client.on("messageCreate", async (message) => {
     const embed = new EmbedBuilder()
       .setTitle(`Perte ${CURRENCY}`)
       .setDescription(
-        `**${amount}** ${CURRENCY} retirés à ${`<@${member.displayName}>`}. \n\nSolde : **${balance}** ${CURRENCY}`
+        `**${amount}** ${CURRENCY} retirés à ${`<@${member.displayName}>`}. \n\nSolde : **${balance}** ${CURRENCY}.`
       ) // contenu
       .setColor("#9e0e40");
 
@@ -226,7 +226,7 @@ client.on("messageCreate", async (message) => {
       .setDescription(
         `**${
           amount * 30
-        }** ${CURRENCY} retirés à ${`<@${member.displayName}>`} pour récupéré ${amount} cadeaux ! 🎁. \n\nSolde : **${balance}** ${CURRENCY}`
+        }** ${CURRENCY} retirés à ${`<@${member.displayName}>`} pour récupéré ${amount} cadeaux ! 🎁. \n\nSolde : **${balance}** ${CURRENCY}.`
       ) // contenu
       .setColor("#9e0e40");
 
@@ -252,9 +252,9 @@ client.on("messageCreate", async (message) => {
     if (myBalance > 0 && myIndex !== -1) {
       msg += `**Ta place :** ${
         myIndex + 1
-      }ᵉ avec **${myBalance}** ${CURRENCY}\n\n`;
+      }ᵉ avec **${myBalance}** ${CURRENCY}.\n\n`;
     } else {
-      msg += `**Ta place :** Vous n'avez pas encore de ${CURRENCY}\n\n`;
+      msg += `**Ta place :** Vous n'avez pas encore de ${CURRENCY}.\n\n`;
     }
 
     msg += `**Top 10 :**\n`;
@@ -303,7 +303,7 @@ client.on("messageCreate", async (message) => {
     const embed = new EmbedBuilder()
       .setTitle("🍀 Magik-Rusher 🍀")
       .setDescription(
-        "Chaque semaine un nouveau donjon est à réaliser, du Lundi 00h00 au Dimanche 23h59 (UTC+1). Aucune limite de personnes par donjon.\n\n🔸Attribution des points : \n🔹 10 points pour la 1ère réalisation du donjon\n🔹 +1 point par personnage unique dans le combat n’ayant jamais fait le donjon.\n🔹 Réaliser le donjon seul ou uniquement avec ses mules = 5 points.\n🔹 À partir de deux participants uniques (ou plus) = 10 points et les règles de base s’appliquent.\n🔹 Screens de victoire + pseudo obligatoires pour valider, à poster dans le channel associé https://discord.com/channels/297322268961538048/1360338547827282262.\n\n🔸Classement \n🔹Un classement est établi, vous pouvez le consulter en effectuant les commandes dans le salon 'Magik-Rusher': \n🔹/solde pour afficher vos points\n🔹/classement pour afficher le classement du serveur\n\n🔸 Gains\n🔹Un total de 260 cosmétiques ont étés emballés dans des cadeaux, vous pourrez obtenir un cadeau aléatoire pour 30 points par cadeau.\n🔹L'estimation des cosmétiques vont de 440 kamas jusqu'à 8M unité. "
+        "Chaque semaine un nouveau donjon est à réaliser, du Lundi 00h00 au Dimanche 23h59 (UTC+1). Aucune limite de personnes par donjon.\n\n🔸Attribution des points : \n🔹 10 points pour la 1ère réalisation du donjon.\n🔹 +1 point par personnage unique dans le combat n’ayant jamais fait le donjon.\n🔹 Réaliser le donjon seul ou uniquement avec ses mules = 5 points.\n🔹 À partir de deux participants uniques (ou plus) = 10 points et les règles de base s’appliquent.\n🔹 Screens de victoire + pseudo obligatoires pour valider, à poster dans le channel associé https://discord.com/channels/297322268961538048/1360338547827282262.\n\n🔸Classement \n🔹Un classement est établi, vous pouvez le consulter en effectuant les commandes dans le salon 'Magik-Rusher': \n🔹/solde pour afficher vos points.\n🔹/classement pour afficher le top 10 du serveur, et votre position.\n🔹/classementgeneral pour afficher le classement du serveur.\n\n🔸 Gains\n🔹Un total de 260 cosmétiques ont étés emballés dans des cadeaux, vous pourrez obtenir un cadeau aléatoire pour 30 points par cadeau.\n🔹L'estimation des cosmétiques vont de 440 kamas jusqu'à 8M unité. "
       )
       .setColor("#165416");
 
@@ -315,7 +315,7 @@ client.on("messageCreate", async (message) => {
     const embed = new EmbedBuilder()
       .setTitle("🤖 Les commandes 🤖")
       .setDescription(
-        `🔹**!magik-rusher**: explique les différentes règles de l'évenement hebdomadaire Magik-Rusher\n🔹**!solde**: donne votre nombre de ${CURRENCY}\n🔹**!classement**: affiche le top 10 des ${CURRENCY} et votre placement\n🔹**!classementgeneral**: affiche le classement complet des ${CURRENCY}\n\n🔸Commandes admin :\n🔹**!addcoins @user value**: ajout de magik-coins\n🔹**!removecoins @user value**: retrait de magik-coins\n🔹**!kdo @user value**: don de cadeaux`
+        `🔹**!magik-rusher**: explique les différentes règles de l'évenement hebdomadaire Magik-Rusher.\n🔹**!solde**: donne votre nombre de ${CURRENCY}.\n🔹**!classement**: affiche le top 10 des ${CURRENCY} et votre placement.\n🔹**!classementgeneral**: affiche le classement complet des ${CURRENCY}.\n\n🔸Commandes admin :\n🔹**!addcoins @user value**: ajout de ${CURRENCY}.\n🔹**!removecoins @user value**: retrait de ${CURRENCY}.\n🔹**!kdo @user value**: don de cadeaux en échange de ${CURRENCY}.`
       )
       .setColor("#165416");
 
