@@ -1,4 +1,5 @@
 import fs from "fs";
+import sqlite3 from "sqlite3";
 import { Client, GatewayIntentBits, Partials, EmbedBuilder } from "discord.js";
 
 const client = new Client({
@@ -25,13 +26,20 @@ const client = new Client({
  * FONCTIONS AUTOMATIQUES
  */
 
-import sqlite3 from "sqlite3";
-const sqlite = sqlite3.verbose();
+const DATA_DIR = "./data";
+const DB_FILE = `${DATA_DIR}/balances.sqlite`;
 
-// Le fichier balances.sqlite sera créé si inexistant
-const db = new sqlite.Database("./data/balances.sqlite", (err) => {
-  if (err) return console.error(err.message);
-  console.log("✅ Connecté à la base SQLite");
+// Créer le dossier s'il n'existe pas
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR);
+  console.log("📁 Dossier data créé");
+}
+
+// Initialiser SQLite
+const sqlite = sqlite3.verbose();
+const db = new sqlite.Database(DB_FILE, (err) => {
+  if (err) return console.error("❌ Erreur DB:", err.message);
+  console.log("✅ DB prête !");
 });
 
 // Créer la table si elle n'existe pas
@@ -104,7 +112,7 @@ function getRanking() {
 const CURRENCY = "🪙 Magik Coins";
 
 // Quand le bot est prêt
-client.once("ready", () => {
+client.once("clientReady", () => {
   console.log(`✅ Connecté en tant que ${client.user.tag}`);
 });
 
