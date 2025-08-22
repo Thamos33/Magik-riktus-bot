@@ -18,6 +18,12 @@ const client = new Client({
   ],
 });
 
+/*
+ * SOMMAIRE
+ * COMMANDES ECRITES
+ * FONCTIONS AUTOMATIQUES
+ */
+
 // Fichier JSON pour stocker la monnaie
 const DATA_FILE = "./balances.json";
 let balances = {};
@@ -40,7 +46,13 @@ client.once("ready", () => {
   console.log(`✅ Connecté en tant que ${client.user.tag}`);
 });
 
-// Commandes simples
+/*
+ * COMMANDES ECRITES
+ * - solde
+ * - ajout d'argent
+ * - retrait d'argent
+ * - classement
+ */
 client.on("messageCreate", (message) => {
   if (message.author.bot) return;
 
@@ -70,7 +82,11 @@ client.on("messageCreate", (message) => {
     balances[mention.id] = (balances[mention.id] || 0) + amount;
     saveBalances();
     const member = message.guild.members.cache.get(mention.id);
-    message.reply(`${amount} ${CURRENCY} ajoutés à ${member.displayName}`);
+    message.reply(
+      `${amount} ${CURRENCY} ajoutés à ${member.displayName}. Total : ${
+        balances[mention.id]
+      } ${CURRENCY}`
+    );
   }
 
   // Retirer de l'argent (admin only)
@@ -89,7 +105,11 @@ client.on("messageCreate", (message) => {
     balances[mention.id] = (balances[mention.id] || 0) - amount;
     saveBalances();
     const member = message.guild.members.cache.get(mention.id);
-    message.reply(`${amount} ${CURRENCY} retirés à ${member.displayName}`);
+    message.reply(
+      `${amount} ${CURRENCY} retirés à ${member.displayName}. Total : ${
+        balances[mention.id]
+      } ${CURRENCY}`
+    );
   }
 
   // Classement
@@ -114,6 +134,10 @@ client.on("messageCreate", (message) => {
   }
 });
 
+/*
+ * FONCTIONS AUTOMATIQUES
+ * - rules
+ */
 // rules
 // 🔧 Variables d'environnement
 const MESSAGE_ID = process.env.RULES_MESSAGE;
