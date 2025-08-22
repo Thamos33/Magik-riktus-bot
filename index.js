@@ -239,6 +239,17 @@ client.on("messageCreate", async (message) => {
 
     message.channel.send({ embeds: [embed] });
   }
+
+  if (command === "!magik-rusher") {
+    const embed = new EmbedBuilder()
+      .setTitle("🏆 Magik-rusher 🏆")
+      .setDescription(
+        "Chaque semaine un nouveau donjon est à réaliser, du Lundi 00h00 au Dimanche 23h59. Aucune limite de personnes par donjon.\n🔸Attribution des points : \n🔹10 points par donjon réalisé (un seul donjon par semaine)\n🔹Les points sont comptabilisés pour 1 perso par team uniquement\n🔹+1 point par perso unique en combat n'ayant jamais fait le donjon\n🔸Classement \n🔹Screen de fin de combat à poster dans le channel associé https://discord.com/channels/297322268961538048/1360338547827282262\n🔹Un classement est établi, vous pouvez le consulter en effectuant les commandes dans le salon 'Magik-Rusher': \n🔹/solde pour afficher vos points\n🔹/classement pour afficher le classement du serveur\n🔸 Gains\n🔹Un total de 260 cosmétiques ont étés emballés dans des cadeaux, vous pourrez obtenir un cadeau aléatoire pour 30 points par cadeau.\n🔹L'estimation des cosmétiques vont de 440 kamas jusqu'à 8M unité. "
+      )
+      .setColor("#165416");
+
+    message.channel.send({ embeds: [embed] });
+  }
 });
 
 /*
