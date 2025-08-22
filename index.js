@@ -48,7 +48,7 @@ client.on("messageCreate", (message) => {
   }
 
   // Ajouter de l'argent (admin only)
-  if (command === "!Acoin") {
+  if (command === "!addcoin") {
     if (!message.member.permissions.has("Administrator")) {
       return message.reply("🚫 Tu n'as pas la permission.");
     }
@@ -57,7 +57,7 @@ client.on("messageCreate", (message) => {
     const amount = parseInt(args[1]);
 
     if (!mention || isNaN(amount)) {
-      return message.reply("Usage : `!addmagikcoin @user 50`");
+      return message.reply("Usage : `!addcoin @user 50`");
     }
 
     balances[mention.id] = (balances[mention.id] || 0) + amount;
@@ -66,7 +66,7 @@ client.on("messageCreate", (message) => {
   }
 
   // Retirer de l'argent (admin only)
-  if (command === "!Rcoin") {
+  if (command === "!removecoin") {
     if (!message.member.permissions.has("Administrator")) {
       return message.reply("🚫 Tu n'as pas la permission.");
     }
@@ -75,7 +75,7 @@ client.on("messageCreate", (message) => {
     const amount = parseInt(args[1]);
 
     if (!mention || isNaN(amount)) {
-      return message.reply("Usage : `!removemagikcoin @user 50`");
+      return message.reply("Usage : `!removecoin @user 50`");
     }
 
     balances[mention.id] = (balances[mention.id] || 0) - amount;
