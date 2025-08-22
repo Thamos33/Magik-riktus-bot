@@ -132,7 +132,7 @@ client.on("messageCreate", (message) => {
       return message.reply("Personne n’a encore de monnaie !");
     }
 
-    let msg = "          🏆 **Classement** 🏆\n";
+    let msg = "";
     if (myBalance !== 0) {
       msg += `**Ta place :** ${
         myIndex + 1
@@ -151,7 +151,7 @@ client.on("messageCreate", (message) => {
     });
 
     const embed = new EmbedBuilder()
-      .setTitle("🏆 Classement 🏆")
+      .setTitle("\u2003\u2003🏆 Classement 🏆")
       .setDescription(msg) // ton texte du top ici
       .setColor("#FFD700"); // doré
 
