@@ -195,36 +195,36 @@ client.on("messageCreate", async (message) => {
     message.channel.send({ embeds: [embed] });
   }
 
-  //classement
+  // classement
   if (command === "!classement") {
-    const ranking = await getRanking();
-    let rankingTopTen = ranking.slice(0, 10);
+    const ranking = await getRanking(); // rows: [{ userId, balance }, ...] déjà triés DESC
+    const nonZero = ranking.filter((r) => r.balance !== 0);
 
-    // index de l’utilisateur
-    const myIndex = ranking.findIndex((r) => r.userId === message.author.id);
-    const myBalance = await getBalance(message.author.id);
-
-    if (ranking.length === 0) {
+    if (nonZero.length === 0) {
       return message.reply("Personne n’a encore de monnaie !");
     }
 
+    const top10 = nonZero.slice(0, 10);
+
+    // Position et solde de l'auteur
+    const myBalance = await getBalance(message.author.id);
+    const myIndex = nonZero.findIndex((r) => r.userId === message.author.id);
+
     let msg = "";
-    if (myBalance !== 0) {
+    if (myBalance > 0 && myIndex !== -1) {
       msg += `**Ta place :** ${
         myIndex + 1
       }ᵉ avec **${myBalance}** ${CURRENCY}\n\n`;
     } else {
       msg += `**Ta place :** Vous n'avez pas encore de ${CURRENCY}\n\n`;
     }
-    msg += `**Top 10 :**\n`;
 
-    rankingTopTen.forEach(([userId, balance], index) => {
-      const member = message.guild.members.cache.get(String(userId));
-      if (balance !== 0) {
-        msg += `**${index + 1}.** ${
-          member ? member.displayName : "Utilisateur inconnu"
-        } — **${balance}** ${CURRENCY}\n`;
-      }
+    msg += `**Top 10 :**\n`;
+    top10.forEach((row, index) => {
+      const member = message.guild.members.cache.get(row.userId);
+      msg += `**${index + 1}.** ${
+        member ? member.displayName : `<@${row.userId}>`
+      } — **${row.balance}** ${CURRENCY}\n`;
     });
 
     const embed = new EmbedBuilder()
