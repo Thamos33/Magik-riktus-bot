@@ -83,8 +83,9 @@ client.on("messageCreate", (message) => {
     saveBalances();
     const member = message.guild.members.cache.get(mention.id);
     message.reply(
-      `**${amount}** ${CURRENCY} ajoutés à **${member.displayName}**. \nTotal : 
-      **${balances[mention.id]}** ${CURRENCY}`
+      `**${amount}** ${CURRENCY} ajoutés à **${
+        member.displayName
+      }**. \nSolde : **${balances[mention.id]}** ${CURRENCY}`
     );
   }
 
@@ -105,8 +106,9 @@ client.on("messageCreate", (message) => {
     saveBalances();
     const member = message.guild.members.cache.get(mention.id);
     message.reply(
-      `**${amount}** ${CURRENCY} retirés à **${member.displayName}**. \nTotal : 
-      **${balances[mention.id]}** ${CURRENCY}`
+      `**${amount}** ${CURRENCY} retirés à **${
+        member.displayName
+      }**. \nSolde : **${balances[mention.id]}** ${CURRENCY}`
     );
   }
 
@@ -120,7 +122,7 @@ client.on("messageCreate", (message) => {
       return message.reply("Personne n’a encore de monnaie !");
     }
 
-    let msg = "🏆 **Classement** 🏆\n";
+    let msg = "🏆 **Classement** 🏆\n\n";
     ranking.forEach(([userId, balance], index) => {
       const member = message.guild.members.cache.get(userId);
       msg += `**${index + 1}.** ${
