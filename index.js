@@ -126,6 +126,7 @@ client.once("clientReady", () => {
  * - solde
  * - ajout d'argent
  * - retrait d'argent
+ * - cadeaux
  * - classement
  * - magik-rusher
  * - liste des commandes
@@ -197,6 +198,35 @@ client.on("messageCreate", async (message) => {
       .setTitle(`Perte ${CURRENCY}`)
       .setDescription(
         `**${amount}** ${CURRENCY} retirés à **${member.displayName}**. \n\nSolde : **${balance}** ${CURRENCY}`
+      ) // contenu
+      .setColor("#9e0e40");
+
+    message.channel.send({ embeds: [embed] });
+  }
+
+  // give gift (admin only)
+  if (command === "!kdo") {
+    if (!message.member.permissions.has("Administrator")) {
+      return message.reply("🚫 Tu n'as pas la permission.");
+    }
+
+    const mention = message.mentions.users.first();
+    const amount = parseInt(args[1]);
+
+    if (!mention || isNaN(amount)) {
+      return message.reply("Usage : `!kdo @user 1`");
+    }
+
+    await removeBalance(mention.id, amount * 30);
+    const balance = await getBalance(mention.id);
+    const member = message.guild.members.cache.get(mention.id);
+
+    const embed = new EmbedBuilder()
+      .setTitle(`🎁 Cadeaux ! 🎁`)
+      .setDescription(
+        `**${amount * 30}** ${CURRENCY} retirés à **${
+          member.displayName
+        }** pour récupéré ${amount} cadeaux ! 🎁. \n\nSolde : **${balance}** ${CURRENCY}`
       ) // contenu
       .setColor("#9e0e40");
 
