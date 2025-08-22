@@ -1,5 +1,10 @@
 const fs = require("fs");
-const { Client, GatewayIntentBits, Partials } = require("discord.js");
+const {
+  Client,
+  GatewayIntentBits,
+  Partials,
+  EmbedBuilder,
+} = require("discord.js");
 
 const client = new Client({
   intents: [
@@ -145,7 +150,12 @@ client.on("messageCreate", (message) => {
       }
     });
 
-    message.channel.send(msg);
+    const embed = new EmbedBuilder()
+      .setTitle("🏆 Classement 🏆")
+      .setDescription(msg) // ton texte du top ici
+      .setColor("#FFD700"); // doré
+
+    message.channel.send({ embeds: [embed] });
   }
 });
 
