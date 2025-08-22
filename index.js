@@ -1,6 +1,7 @@
-import fs from "fs";
-import sqlite3 from "sqlite3";
+import pkg from "pg";
 import { Client, GatewayIntentBits, Partials, EmbedBuilder } from "discord.js";
+
+const { Pool } = pkg;
 
 const client = new Client({
   intents: [
@@ -26,87 +27,91 @@ const client = new Client({
  * FONCTIONS AUTOMATIQUES
  */
 
-const DATA_DIR = "./data";
-const DB_FILE = `${DATA_DIR}/balances.sqlite`;
-
-// Créer le dossier s'il n'existe pas
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR);
-  console.log("📁 Dossier data créé");
-}
-
-// Initialiser SQLite
-const sqlite = sqlite3.verbose();
-const db = new sqlite.Database(DB_FILE, (err) => {
-  if (err) return console.error("❌ Erreur DB:", err.message);
-  console.log("✅ DB prête !");
+// Connexion à Postgres via Railway (les variables PG* sont déjà fournies)
+const pool = new Pool({
+  host: process.env.PGHOST,
+  user: process.env.PGUSER,
+  password: process.env.PGPASSWORD,
+  database: process.env.PGDATABASE,
+  port: process.env.PGPORT,
+  ssl: { rejectUnauthorized: false }, // Railway nécessite SSL
 });
 
-// Créer la table si elle n'existe pas
-db.run(`
-  CREATE TABLE IF NOT EXISTS balances (
-    userId TEXT PRIMARY KEY,
-    balance INTEGER
-  )
-`);
+// Vérifier la connexion et créer la table
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS balances (
+        userId TEXT PRIMARY KEY,
+        balance INTEGER DEFAULT 0
+      )
+    `);
+    console.log("✅ DB Postgres prête !");
+  } catch (err) {
+    console.error("❌ Erreur DB:", err.message);
+  }
+})();
+
+// ----------------------
+// Fonctions utilitaires
+// ----------------------
 
 // Récupérer le solde d'un utilisateur
-function getBalance(userId) {
-  return new Promise((resolve, reject) => {
-    db.get(
-      "SELECT balance FROM balances WHERE userId = ?",
-      [userId],
-      (err, row) => {
-        if (err) return reject(err);
-        resolve(row ? row.balance : 0);
-      }
+async function getBalance(userId) {
+  try {
+    const res = await pool.query(
+      "SELECT balance FROM balances WHERE userId = $1",
+      [userId]
     );
-  });
+    return res.rows.length > 0 ? res.rows[0].balance : 0;
+  } catch (err) {
+    console.error("❌ Erreur getBalance:", err.message);
+    return 0;
+  }
 }
 
 // Ajouter de l'argent
-function addBalance(userId, amount) {
-  return new Promise((resolve, reject) => {
-    db.run(
-      `INSERT INTO balances(userId, balance) VALUES(?, ?)
-       ON CONFLICT(userId) DO UPDATE SET balance = balance + ?`,
-      [userId, amount, amount],
-      (err) => {
-        if (err) return reject(err);
-        resolve();
-      }
+async function addBalance(userId, amount) {
+  try {
+    await pool.query(
+      `INSERT INTO balances (userId, balance)
+       VALUES ($1, $2)
+       ON CONFLICT (userId) DO UPDATE SET balance = balances.balance + $2`,
+      [userId, amount]
     );
-  });
+  } catch (err) {
+    console.error("❌ Erreur addBalance:", err.message);
+  }
 }
 
 // Retirer de l'argent
-function removeBalance(userId, amount) {
-  return new Promise((resolve, reject) => {
-    db.run(
-      `INSERT INTO balances(userId, balance) VALUES(?, ?)
-       ON CONFLICT(userId) DO UPDATE SET balance = balance - ?`,
-      [userId, -amount, amount],
-      (err) => {
-        if (err) return reject(err);
-        resolve();
-      }
+async function removeBalance(userId, amount) {
+  try {
+    await pool.query(
+      `INSERT INTO balances (userId, balance)
+       VALUES ($1, $2)
+       ON CONFLICT (userId) DO UPDATE SET balance = balances.balance - $2`,
+      [userId, -amount]
     );
-  });
+  } catch (err) {
+    console.error("❌ Erreur removeBalance:", err.message);
+  }
 }
 
 // Récupérer le classement complet
-function getRanking() {
-  return new Promise((resolve, reject) => {
-    db.all(
-      "SELECT userId, balance FROM balances ORDER BY balance DESC",
-      [],
-      (err, rows) => {
-        if (err) return reject(err);
-        resolve(rows);
-      }
+async function getRanking() {
+  try {
+    const res = await pool.query(
+      "SELECT userId, balance FROM balances ORDER BY balance DESC"
     );
-  });
+    return res.rows;
+  } catch (err) {
+    console.error("❌ Erreur getRanking:", err.message);
+    return [];
+  }
 }
+
+export { getBalance, addBalance, removeBalance, getRanking };
 
 // Nom de la monnaie
 const CURRENCY = "🪙 Magik Coins";
