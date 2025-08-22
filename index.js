@@ -42,18 +42,62 @@ db.run(`
   )
 `);
 
-// Fichier JSON pour stocker la monnaie
-const DATA_FILE = "./balances.json";
-let balances = {};
-
-// Charger les données au démarrage
-if (fs.existsSync(DATA_FILE)) {
-  balances = JSON.parse(fs.readFileSync(DATA_FILE));
+// Récupérer le solde d'un utilisateur
+function getBalance(userId) {
+  return new Promise((resolve, reject) => {
+    db.get(
+      "SELECT balance FROM balances WHERE userId = ?",
+      [userId],
+      (err, row) => {
+        if (err) return reject(err);
+        resolve(row ? row.balance : 0);
+      }
+    );
+  });
 }
 
-// Sauvegarder les données
-function saveBalances() {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(balances, null, 2));
+// Ajouter de l'argent
+function addBalance(userId, amount) {
+  return new Promise((resolve, reject) => {
+    db.run(
+      `INSERT INTO balances(userId, balance) VALUES(?, ?)
+       ON CONFLICT(userId) DO UPDATE SET balance = balance + ?`,
+      [userId, amount, amount],
+      (err) => {
+        if (err) return reject(err);
+        resolve();
+      }
+    );
+  });
+}
+
+// Retirer de l'argent
+function removeBalance(userId, amount) {
+  return new Promise((resolve, reject) => {
+    db.run(
+      `INSERT INTO balances(userId, balance) VALUES(?, ?)
+       ON CONFLICT(userId) DO UPDATE SET balance = balance - ?`,
+      [userId, -amount, amount],
+      (err) => {
+        if (err) return reject(err);
+        resolve();
+      }
+    );
+  });
+}
+
+// Récupérer le classement complet
+function getRanking() {
+  return new Promise((resolve, reject) => {
+    db.all(
+      "SELECT userId, balance FROM balances ORDER BY balance DESC",
+      [],
+      (err, rows) => {
+        if (err) return reject(err);
+        resolve(rows);
+      }
+    );
+  });
 }
 
 // Nom de la monnaie
@@ -71,7 +115,7 @@ client.once("ready", () => {
  * - retrait d'argent
  * - classement
  */
-client.on("messageCreate", (message) => {
+client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
 
   const args = message.content.split(" ");
@@ -80,10 +124,11 @@ client.on("messageCreate", (message) => {
   // Vérifier le solde
   if (command === "!solde") {
     const userId = message.author.id;
-    const balance = balances[userId] || 0;
+    const balance = await getBalance(userId); // <--- await
+
     const embed = new EmbedBuilder()
       .setTitle(`Mon solde`)
-      .setDescription(`Tu as **${balance}** ${CURRENCY}`) // contenu
+      .setDescription(`Tu as **${balance}** ${CURRENCY}`)
       .setColor("#165416");
 
     message.channel.send({ embeds: [embed] });
@@ -102,8 +147,8 @@ client.on("messageCreate", (message) => {
       return message.reply("Usage : `!addcoin @user 50`");
     }
 
-    balances[mention.id] = (balances[mention.id] || 0) + amount;
-    saveBalances();
+    await addBalance(mention.id, amount);
+    const balance = await getBalance(mention.id);
     const member = message.guild.members.cache.get(mention.id);
     const embed = new EmbedBuilder()
       .setTitle(`Gain ${CURRENCY}`)
@@ -130,8 +175,8 @@ client.on("messageCreate", (message) => {
       return message.reply("Usage : `!removecoin @user 50`");
     }
 
-    balances[mention.id] = (balances[mention.id] || 0) - amount;
-    saveBalances();
+    await removeBalance(mention.id, amount);
+    const balance = await getBalance(mention.id);
     const member = message.guild.members.cache.get(mention.id);
 
     const embed = new EmbedBuilder()
@@ -148,13 +193,12 @@ client.on("messageCreate", (message) => {
 
   //classement
   if (command === "!classement") {
-    let ranking = Object.entries(balances).sort((a, b) => b[1] - a[1]);
+    const ranking = await getRanking();
     let rankingTopTen = ranking.slice(0, 10);
 
-    const myIndex = ranking.findIndex(
-      ([userId]) => String(userId) === message.author.id
-    );
-    const myBalance = balances[message.author.id] || 0;
+    // index de l’utilisateur
+    const myIndex = ranking.findIndex((r) => r.userId === message.author.id);
+    const myBalance = await getBalance(message.author.id);
 
     if (ranking.length === 0) {
       return message.reply("Personne n’a encore de monnaie !");
