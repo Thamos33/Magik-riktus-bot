@@ -145,7 +145,7 @@ client.on("messageCreate", async (message) => {
       const member = message.guild.members.cache.get(mention.id);
       const balance = await getBalance(mention.id); // <--- await
 
-      const embed = new EmbedBuilder()
+      embed = new EmbedBuilder()
         .setTitle(`Le solde de ${`<@${member.id}>`}`)
         .setDescription(`${`<@${member.id}>`} a **${balance}** ${CURRENCY}.`)
         .setColor("#165416");
@@ -153,7 +153,7 @@ client.on("messageCreate", async (message) => {
       const userId = message.author.id;
       const balance = await getBalance(userId); // <--- await
 
-      const embed = new EmbedBuilder()
+      embed = new EmbedBuilder()
         .setTitle(`Mon solde`)
         .setDescription(`Tu as **${balance}** ${CURRENCY}.`)
         .setColor("#165416");
