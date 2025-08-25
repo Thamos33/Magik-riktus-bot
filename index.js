@@ -341,7 +341,9 @@ client.on("messageCreate", async (message) => {
 /*
  * FONCTIONS AUTOMATIQUES
  * - rules
+ * - suppression des balances quand quitte le serveur
  */
+
 // rules
 // 🔧 Variables d'environnement
 const MESSAGE_ID = process.env.RULES_MESSAGE;
@@ -405,6 +407,16 @@ client.on("messageReactionRemove", async (reaction, user) => {
     }
   } catch (err) {
     console.error("Erreur réaction (remove):", err);
+  }
+});
+
+// Quand un membre quitte le serveur, on supprime ses balances
+client.on("guildMemberRemove", async (member) => {
+  try {
+    await pool.query("DELETE FROM balances WHERE userid = $1", [member.id]);
+    console.log(`✅ Ligne supprimée pour ${member.id}`);
+  } catch (err) {
+    console.error("Erreur suppression :", err);
   }
 });
 
