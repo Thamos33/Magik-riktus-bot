@@ -142,13 +142,14 @@ client.on("messageCreate", async (message) => {
   if (command === "!solde") {
     const mention = message.mentions.users.first();
     const target = mention || message.author;
+    const member = message.guild.members.cache.get(target.id);
     const balance = await getBalance(target.id);
 
     const embed = new EmbedBuilder()
       .setTitle(
         target.id === message.author.id
           ? "Mon solde"
-          : `Le solde de ${target.username}`
+          : `Le solde de ${member.displayName}`
       )
       .setDescription(
         target.id === message.author.id
