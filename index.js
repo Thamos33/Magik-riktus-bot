@@ -275,27 +275,42 @@ client.on("messageCreate", async (message) => {
 
   // classement general
   if (command === "!classementgeneral") {
-    const ranking = await getRanking(); // rows: [{ userId, balance }, ...] déjà triés DESC
+    const ranking = await getRanking(); // rows: [{ userid, balance }, ...] déjà triés DESC
     const nonZero = ranking.filter((r) => r.balance !== 0);
 
     if (nonZero.length === 0) {
       return message.reply("Personne n’a encore de monnaie !");
     }
 
-    let msg = "";
-    ranking.forEach((row, index) => {
-      const member = message.guild.members.cache.get(String(row.userid));
-      msg += `**${index + 1}.** ${`<@${row.userid}>`} — **${
-        row.balance
-      }** ${CURRENCY}\n`;
-    });
+    // 🔹 Fonction utilitaire pour découper en lots
+    function chunkArray(arr, size) {
+      const result = [];
+      for (let i = 0; i < arr.length; i += size) {
+        result.push(arr.slice(i, i + size));
+      }
+      return result;
+    }
 
-    const embed = new EmbedBuilder()
-      .setTitle("🏆 Classement 🏆")
-      .setDescription(msg)
-      .setColor("#FFD700");
+    // Découpe le ranking en lots de 30
+    const chunks = chunkArray(ranking, 30);
 
-    message.channel.send({ embeds: [embed] });
+    for (let c = 0; c < chunks.length; c++) {
+      let msg = "";
+
+      chunks[c].forEach((row, index) => {
+        const rank = c * 30 + index + 1; // numéro global du classement
+        msg += `**${rank}.** <@${row.userid}> — **${row.balance}** ${CURRENCY}\n`;
+      });
+
+      const embed = new EmbedBuilder()
+        .setTitle(
+          "🏆 Classement 🏆" + (chunks.length > 1 ? ` (page ${c + 1})` : "")
+        )
+        .setDescription(msg)
+        .setColor("#FFD700");
+
+      await message.channel.send({ embeds: [embed] });
+    }
   }
 
   // règle du magik-rusher
