@@ -1,7 +1,13 @@
 import pkg from "pg";
 import fs from "fs/promises";
 import path from "path";
-import { Client, GatewayIntentBits, Partials, EmbedBuilder } from "discord.js";
+import {
+  Client,
+  GatewayIntentBits,
+  Partials,
+  EmbedBuilder,
+  AttachmentBuilder,
+} from "discord.js";
 
 const { Pool } = pkg;
 
@@ -49,9 +55,6 @@ const pool = new Pool({
       )
     `);
     await pool.query(`
-    DROP TABLE submissions
-    `);
-    await pool.query(`
     CREATE TABLE IF NOT EXISTS submissions (
   user_id TEXT PRIMARY KEY,
   file_path TEXT NOT NULL,
@@ -86,10 +89,11 @@ const res = await pool.query(
   "SELECT * FROM submissions ORDER BY submitted_at ASC"
 );
 
+// Récupérer toutes les submissions
 async function getSubmissions() {
   try {
     const res = await pool.query(
-      "SELECT * FROM submissions ORDER BY submitted_at ASC"
+      "SELECT user_id, file_path, file_name FROM submissions ORDER BY submitted_at ASC"
     );
     return res;
   } catch (err) {
@@ -98,6 +102,7 @@ async function getSubmissions() {
   }
 }
 
+// Mettre a jour une submissions
 async function updateSubmissions(userId, filePath, fileName) {
   try {
     await pool.query(
@@ -112,6 +117,7 @@ async function updateSubmissions(userId, filePath, fileName) {
   }
 }
 
+// Récupérer une submission particulière
 async function getSubmissionsById(userId) {
   try {
     const res = await pool.query(
@@ -166,6 +172,7 @@ async function getRanking() {
   }
 }
 
+// Fonction pour envoyer une image
 async function handleSend(message, pool) {
   const att = message.attachments.first();
   if (
@@ -195,7 +202,7 @@ async function handleSend(message, pool) {
   const fileName = `${message.author.id}_${Date.now()}${ext}`;
   const filePath = path.join(dir, fileName);
 
-  // Optionnel: supprimer l'ancien fichier s'il existe déjà pour cet utilisateur
+  // Supprimer l'ancien fichier s'il existe déjà pour cet utilisateur
   const prev = await getSubmissionsById(message.author.id);
 
   await fs.writeFile(filePath, buffer);
@@ -215,6 +222,50 @@ async function handleSend(message, pool) {
   message.author.send("✅ Ton screen a bien été enregistré !").catch(() => {});
 }
 
+async function handleSendUs(message, pool) {
+  // Optionnel: permission
+  if (!message.member.roles.cache.has("1271882131848822836")) {
+    await message.reply(
+      "⚠️ Tu n’as pas la permission d’utiliser cette commande."
+    );
+    return;
+  }
+
+  const { rows } = await getSubmissions();
+
+  if (rows.length === 0) {
+    await message.reply("⚠️ Aucune image enregistrée.");
+    return;
+  }
+
+  for (const row of rows) {
+    try {
+      // Vérifie que le fichier existe encore
+      await fs.access(row.file_path);
+
+      // Deux options équivalentes:
+
+      // A) Envoyer par chemin local (discord.js sait lire le fichier)
+      await message.channel.send({
+        content: `Screen de <@${row.user_id}>`,
+        files: [{ attachment: row.file_path, name: row.file_name }],
+      });
+
+      // B) Ou lire en buffer si tu préfères:
+      // const buf = await fs.readFile(row.file_path);
+      // await message.channel.send({
+      //   content: `Screen de <@${row.user_id}>`,
+      //   files: [new AttachmentBuilder(buf, { name: row.file_name })],
+      // });
+    } catch (e) {
+      console.error("Envoi échoué pour", row.user_id, e);
+      await message.channel.send(
+        `⚠️ Impossible d’envoyer le screen de <@${row.user_id}> (fichier manquant).`
+      );
+    }
+  }
+}
+
 export {
   getBalance,
   addBalance,
@@ -222,6 +273,7 @@ export {
   getRanking,
   updateSubmissions,
   getSubmissions,
+  getSubmissionsById,
 };
 
 // Nom de la monnaie
