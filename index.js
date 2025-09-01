@@ -241,24 +241,23 @@ async function handleSendUs(message, pool) {
     return;
   }
 
-  for (const row of rows) {
+  rows.forEach(async (row, index) => {
     try {
-      // Vérifie que le fichier existe encore
       await fs.access(row.file_path);
 
-      // Deux options équivalentes:
-
-      // Envoyer par chemin local
       await message.channel.send({
+        content: `👗 Skin #${index + 1}`,
         files: [{ attachment: row.file_path, name: row.file_name }],
       });
     } catch (e) {
       console.error("Envoi échoué pour", row.user_id, e);
       await message.channel.send(
-        `⚠️ Impossible d’envoyer le screen de <@${row.user_id}> (fichier manquant).`
+        `⚠️ Impossible d’envoyer le screen #${index + 1} de <@${
+          row.user_id
+        }> (fichier manquant).`
       );
     }
-  }
+  });
 }
 
 export {
@@ -488,9 +487,33 @@ client.on("messageCreate", async (message) => {
     const embed = new EmbedBuilder()
       .setTitle("🍀 Magik-Rusher 🍀")
       .setDescription(
-        "Chaque semaine un nouveau donjon est à réaliser, du Lundi 00h00 au Dimanche 23h59 (UTC+1). Aucune limite de personnes par donjon.\n\n🔸Attribution des points : \n🔹 10 points pour la 1ère réalisation du donjon.\n🔹 +1 point par personnage unique dans le combat n’ayant jamais fait le donjon.\n🔹 Réaliser le donjon seul ou uniquement avec ses mules = 5 points.\n🔹 À partir de deux participants uniques (ou plus) = 10 points et les règles de base s’appliquent.\n🔹 Screens de victoire + pseudo obligatoires pour valider, à poster dans le channel associé https://discord.com/channels/297322268961538048/1360338547827282262.\n\n🔸Classement \n🔹Un classement est établi, vous pouvez le consulter en effectuant les commandes dans le salon https://discord.com/channels/297322268961538048/1360338547827282262: \n🔹!solde pour afficher vos points ou celui d'une personne en utilisant son @.\n🔹!classement pour afficher le top 10 du serveur, et votre position.\n🔹!classementgeneral pour afficher le classement du serveur.\n\n🔸 Gains\n🔹Un total de 260 cosmétiques ont étés emballés dans des cadeaux, vous pourrez obtenir un cadeau aléatoire pour 50 points par cadeau.\n🔹L'estimation des cosmétiques vont de 440 kamas jusqu'à 8M unité. "
+        `Chaque semaine un nouveau donjon est à réaliser, du Lundi 00h00 au Dimanche 23h59 (UTC+1). Aucune limite de personnes par donjon.\n\n🔸Attribution des ${CURRENCY} : \n🔹 10 ${CURRENCY} pour la 1ère réalisation du donjon.\n🔹 +1 ${CURRENCY} par personnage unique dans le combat n’ayant jamais fait le donjon.\n🔹 Réaliser le donjon seul ou uniquement avec ses mules = 5 ${CURRENCY}.\n🔹 À partir de deux participants uniques (ou plus) = 10 ${CURRENCY} et les règles de base s’appliquent.\n🔹 Screens de victoire + pseudo obligatoires pour valider, à poster dans le channel associé https://discord.com/channels/297322268961538048/1360338547827282262.\n\n🔸Classement \n🔹Un classement est établi, vous pouvez le consulter en effectuant les commandes dans le salon https://discord.com/channels/297322268961538048/1360338547827282262: \n🔹!solde pour afficher votre nombre de ${CURRENCY} ou celui d'une personne en utilisant son @.\n🔹!classement pour afficher le top 10 du serveur, et votre position.\n🔹!classementgeneral pour afficher le classement du serveur.\n\n🔸 Gains\n🔹Un total de 260 cosmétiques ont étés emballés dans des cadeaux, vous pourrez obtenir un cadeau aléatoire pour 50 ${CURRENCY} par cadeau.\n🔹L'estimation des cosmétiques vont de 440 kamas jusqu'à 8M unité.`
       )
       .setColor("#165416");
+
+    message.channel.send({ embeds: [embed] });
+  }
+
+  // règle du fashion-riktus
+  if (command === "!fashion-riktus") {
+    const embed = new EmbedBuilder()
+      .setTitle("🌸 Fashion-Riktus 🌸")
+      .setDescription(
+        `Toutes les deux semaines, nous allons alterner entre une semaine pour envoyer vos créations, et une semaine de vote. Un thème sera donné et à respecter.
+
+\n\n🔸 Attribution des points :
+\n🔹 30 ${CURRENCY} pour le 1er.
+\n🔹 20 ${CURRENCY} pour le 2ème.
+\n🔹 10 ${CURRENCY} le 3ème.
+
+\n\n🔸 Fonctionnement
+\n🔹 Durant la 1ere semaine, avec la commande **!send**, en y ajoutant une image, dans le salon https://discord.com/channels/297322268961538048/1412175010935607347 Votre skin sera envoyé, et instantanément supprimer, pour garder la surprise et l'anonymat pour les votes.
+\n🔹 Le lundi suivant, pour la 2ème semaine, tous les skins seront affichés par le bot de guilde, il ne vous restera plus qu'a voter ! Pour cela, réagissez aux images qui vous plaisent avec un :thumbsup: . Vous pouvez voter pour plusieurs skins.
+\n🔹 Les skins sont à réaliser en jeu ou via des outils en ligne.
+\n🔹 Si vous envoyez deux fois un skin, le 2ème écrasera le 1er.
+\n🔹 Pour le respect de l'évènement on vous demandera de ne pas copier des skins déjà fait, si une triche a lieu nous procéderons à des sanctions sur les participations.`
+      )
+      .setColor("#b419a7ff");
 
     message.channel.send({ embeds: [embed] });
   }
@@ -500,7 +523,7 @@ client.on("messageCreate", async (message) => {
     const embed = new EmbedBuilder()
       .setTitle("🤖 Les commandes 🤖")
       .setDescription(
-        `🔹**!magik-rusher**: explique les différentes règles de l'évenement hebdomadaire Magik-Rusher.\n🔹**!solde**: donne votre nombre de ${CURRENCY} ou celui d'une personne en ajoutant son @.\n🔹**!classement**: affiche le top 10 des ${CURRENCY} et votre placement.\n🔹**!classementgeneral**: affiche le classement complet des ${CURRENCY}.\n🔹**!send**: Permet d'envoyer une image lors des evenements\n\n🔸Commandes admin :\n🔹**!addcoin @user value**: ajout de ${CURRENCY}.\n🔹**!removecoin @user value**: retrait de ${CURRENCY}.\n🔹**!kdo @user value**: don de cadeaux en échange de ${CURRENCY}.\n🔹**!resultat**: Affiche les messages des participants aux events mystere`
+        `🔹**!magik-rusher**: explique les différentes règles de l'évenement hebdomadaire Magik-Rusher.\n🔹**!solde**: donne votre nombre de ${CURRENCY} ou celui d'une personne en ajoutant son @.\n🔹**!classement**: affiche le top 10 des ${CURRENCY} et votre placement.\n🔹**!classementgeneral**: affiche le classement complet des ${CURRENCY}.\n🔹**!send**: Permet d'envoyer une image lors des evenements.\n\n🔸Commandes admin :\n🔹**!addcoin @user value**: ajout de ${CURRENCY}.\n🔹**!removecoin @user value**: retrait de ${CURRENCY}.\n🔹**!kdo @user value**: don de cadeaux en échange de ${CURRENCY}.\n🔹**!resultat**: Affiche les messages des participants aux events mysteres.`
       )
       .setColor("#165416");
 
