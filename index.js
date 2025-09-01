@@ -1,4 +1,6 @@
 import pkg from "pg";
+import fs from "fs/promises";
+import path from "path";
 import { Client, GatewayIntentBits, Partials, EmbedBuilder } from "discord.js";
 
 const { Pool } = pkg;
@@ -47,10 +49,12 @@ const pool = new Pool({
       )
     `);
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS submissions (
-    user_id TEXT PRIMARY KEY,
-    image_url TEXT NOT NULL,
-    submitted_at TIMESTAMP DEFAULT NOW()
+    CREATE TABLE IF NOT EXISTS submissions (
+  user_id TEXT PRIMARY KEY,
+  file_path TEXT NOT NULL,
+  file_name TEXT NOT NULL,
+  submitted_at TIMESTAMP DEFAULT NOW()
+);
 )
     `);
     console.log("✅ DB Postgres prête !");
@@ -92,17 +96,30 @@ async function getSubmissions() {
   }
 }
 
-async function updateSubmissions(userId, imageUrl) {
+async function updateSubmissions(userId, filePath, fileName) {
   try {
     await pool.query(
-      `INSERT INTO submissions (user_id, image_url)
-         VALUES ($1, $2)
-         ON CONFLICT (user_id)
-         DO UPDATE SET image_url = $2, submitted_at = NOW()`,
-      [userId, imageUrl]
+      `INSERT INTO submissions (user_id, file_path, file_name, submitted_at)
+    VALUES ($1, $2, $3, NOW())
+    ON CONFLICT (user_id)
+    DO UPDATE SET file_path = EXCLUDED.file_path, file_name = EXCLUDED.file_name, submitted_at = NOW()`,
+      [userId, filePath, fileName]
     );
   } catch (err) {
     console.error("❌ Erreur updateSubmissions:", err.message);
+  }
+}
+
+async function getSubmissionsById(userId) {
+  try {
+    const res = await pool.query(
+      `SELECT file_path FROM submissions WHERE user_id = $1`,
+      [userId]
+    );
+    return res;
+  } catch (err) {
+    console.error("❌ Erreur getSubmissionsById:", err.message);
+    return 0;
   }
 }
 
@@ -145,6 +162,55 @@ async function getRanking() {
     console.error("❌ Erreur getRanking:", err.message);
     return [];
   }
+}
+
+async function handleSend(message, pool) {
+  const att = message.attachments.first();
+  if (
+    !att ||
+    !(
+      att.contentType?.startsWith("image/") ||
+      /\.(png|jpe?g|gif|webp)$/i.test(att.name ?? "")
+    )
+  ) {
+    await message.reply("⚠️ Envoie une image avec la commande !");
+    return;
+  }
+
+  const res = await fetch(att.url);
+  if (!res.ok) {
+    await message.reply("❌ Impossible de télécharger l'image.");
+    return;
+  }
+
+  const arrayBuf = await res.arrayBuffer();
+  const buffer = Buffer.from(arrayBuf);
+
+  const ext = path.extname(att.name || new URL(att.url).pathname) || ".png";
+  const dir = path.join(process.cwd(), "screens");
+  await fs.mkdir(dir, { recursive: true });
+
+  const fileName = `${message.author.id}_${Date.now()}${ext}`;
+  const filePath = path.join(dir, fileName);
+
+  // Optionnel: supprimer l'ancien fichier s'il existe déjà pour cet utilisateur
+  const prev = await getSubmissionsById(message.author.id);
+
+  await fs.writeFile(filePath, buffer);
+
+  await updateSubmissions(message.author.id, filePath, fileName);
+
+  if (prev.rowCount > 0) {
+    const oldPath = prev.rows[0].file_path;
+    if (oldPath && oldPath !== filePath) {
+      fs.unlink(oldPath).catch(() => {}); // on ignore si déjà supprimé
+    }
+  }
+
+  // Supprimer le message d’origine pour la surprise
+  await message.delete().catch(() => {});
+  // Confirmer en MP
+  message.author.send("✅ Ton screen a bien été enregistré !").catch(() => {});
 }
 
 export {
@@ -394,55 +460,12 @@ client.on("messageCreate", async (message) => {
 
   // --- Commande !send ---
   if (command === "!send") {
-    const attachment = message.attachments.first();
-
-    if (!attachment) {
-      await message.reply("⚠️ Merci d’envoyer une image avec la commande !");
-      return;
-    }
-
-    const imageUrl = attachment.url;
-    const userId = message.author.id;
-
-    try {
-      await updateSubmissions(userId, imageUrl);
-
-      // Supprimer le message original pour garder la surprise
-      await message.delete();
-
-      // Confirmation en MP
-      await message.author.send("✅ Ton screen a bien été enregistré !");
-    } catch (err) {
-      console.error(err);
-      await message.reply("❌ Erreur lors de l’enregistrement.");
-    }
+    await handleSend(message, pool);
   }
 
   // --- Commande !sendus ---
   if (command === "!sendus") {
-    // Optionnel : vérifier si l’utilisateur est admin
-    if (!message.member.roles.cache.has("1271882131848822836")) {
-      await message.reply(
-        "⚠️ Tu n’as pas la permission d’utiliser cette commande."
-      );
-      return;
-    }
-
-    try {
-      const res = await getSubmissions();
-
-      if (res.rows.length === 0) {
-        await message.reply("⚠️ Aucune image enregistrée.");
-        return;
-      }
-
-      for (const row of res.rows) {
-        await message.channel.send(row.image_url);
-      }
-    } catch (err) {
-      console.error(err);
-      await message.reply("❌ Erreur lors de la récupération des images.");
-    }
+    //await handleSendUs(message, pool);
   }
 });
 
