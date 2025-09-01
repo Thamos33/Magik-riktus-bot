@@ -519,7 +519,7 @@ client.on("messageCreate", async (message) => {
 
   // --- Commande !sendus ---
   if (command === "!sendus") {
-    //await handleSendUs(message, pool);
+    await handleSendUs(message, pool);
   }
 });
 
