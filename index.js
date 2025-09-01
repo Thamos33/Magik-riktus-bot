@@ -85,7 +85,7 @@ async function getSubmissions() {
     const res = await pool.query(
       "SELECT * FROM submissions ORDER BY submitted_at ASC"
     );
-    return res.rows.length > 0 ? res.rows[0].balance : 0;
+    return res;
   } catch (err) {
     console.error("❌ Erreur getSubmissions:", err.message);
     return 0;
@@ -438,7 +438,6 @@ client.on("messageCreate", async (message) => {
 
       for (const row of res.rows) {
         await message.channel.send({
-          content: ``,
           files: [row.image_url],
         });
       }
