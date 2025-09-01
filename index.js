@@ -222,7 +222,7 @@ async function handleSend(message, pool) {
   // Supprimer le message d’origine pour la surprise
   await message.delete().catch(() => {});
   // Confirmer en MP
-  message.author.send("✅ Ton screen a bien été enregistré !").catch(() => {});
+  message.channel.send("✅ Ton screen a bien été enregistré !").catch(() => {});
 }
 
 async function handleSendUs(message, pool) {
@@ -499,19 +499,7 @@ client.on("messageCreate", async (message) => {
     const embed = new EmbedBuilder()
       .setTitle("🌸 Fashion-Riktus 🌸")
       .setDescription(
-        `Toutes les deux semaines, nous allons alterner entre une semaine pour envoyer vos créations, et une semaine de vote. Un thème sera donné et à respecter.
-
-\n\n🔸 Attribution des points :
-\n🔹 30 ${CURRENCY} pour le 1er.
-\n🔹 20 ${CURRENCY} pour le 2ème.
-\n🔹 10 ${CURRENCY} le 3ème.
-
-\n\n🔸 Fonctionnement
-\n🔹 Durant la 1ere semaine, avec la commande **!send**, en y ajoutant une image, dans le salon https://discord.com/channels/297322268961538048/1412175010935607347 Votre skin sera envoyé, et instantanément supprimer, pour garder la surprise et l'anonymat pour les votes.
-\n🔹 Le lundi suivant, pour la 2ème semaine, tous les skins seront affichés par le bot de guilde, il ne vous restera plus qu'a voter ! Pour cela, réagissez aux images qui vous plaisent avec un :thumbsup: . Vous pouvez voter pour plusieurs skins.
-\n🔹 Les skins sont à réaliser en jeu ou via des outils en ligne.
-\n🔹 Si vous envoyez deux fois un skin, le 2ème écrasera le 1er.
-\n🔹 Pour le respect de l'évènement on vous demandera de ne pas copier des skins déjà fait, si une triche a lieu nous procéderons à des sanctions sur les participations.`
+        `Toutes les deux semaines, nous allons alterner entre une semaine pour envoyer vos créations, et une semaine de vote. Un thème sera donné et à respecter.\n\n🔸 Attribution des points :\n🔹 30 ${CURRENCY} pour le 1er.\n🔹 20 ${CURRENCY} pour le 2ème.\n🔹 10 ${CURRENCY} le 3ème.\n\n🔸 Fonctionnement\n🔹 Durant la 1ere semaine, avec la commande **!send**, en y ajoutant une image, dans le salon https://discord.com/channels/297322268961538048/1412175010935607347 Votre skin sera envoyé, et instantanément supprimer, pour garder la surprise et l'anonymat pour les votes.\n🔹 Le lundi suivant, pour la 2ème semaine, tous les skins seront affichés par le bot de guilde, il ne vous restera plus qu'a voter ! Pour cela, réagissez aux images qui vous plaisent avec un :thumbsup: . Vous pouvez voter pour plusieurs skins.\n🔹 Les skins sont à réaliser en jeu ou via des outils en ligne.\n🔹 Si vous envoyez deux fois un skin, le 2ème écrasera le 1er.\n🔹 Pour le respect de l'évènement on vous demandera de ne pas copier des skins déjà fait, si une triche a lieu nous procéderons à des sanctions sur les participations.`
       )
       .setColor("#b419a7");
 
@@ -523,7 +511,7 @@ client.on("messageCreate", async (message) => {
     const embed = new EmbedBuilder()
       .setTitle("🤖 Les commandes 🤖")
       .setDescription(
-        `🔹**!magik-rusher**: explique les différentes règles de l'évenement hebdomadaire Magik-Rusher.\n🔹**!solde**: donne votre nombre de ${CURRENCY} ou celui d'une personne en ajoutant son @.\n🔹**!classement**: affiche le top 10 des ${CURRENCY} et votre placement.\n🔹**!classementgeneral**: affiche le classement complet des ${CURRENCY}.\n🔹**!send**: Permet d'envoyer une image lors des evenements.\n\n🔸Commandes admin :\n🔹**!addcoin @user value**: ajout de ${CURRENCY}.\n🔹**!removecoin @user value**: retrait de ${CURRENCY}.\n🔹**!kdo @user value**: don de cadeaux en échange de ${CURRENCY}.\n🔹**!resultat**: Affiche les messages des participants aux events mysteres.`
+        `🔹**!magik-rusher**: explique les différentes règles de l'évenement hebdomadaire Magik-Rusher.\n🔹**!fashion-riktus**: explique les différentes règles de l'évenement hebdomadaire Fashion-Riktus.\n🔹**!solde**: donne votre nombre de ${CURRENCY} ou celui d'une personne en ajoutant son @.\n🔹**!classement**: affiche le top 10 des ${CURRENCY} et votre placement.\n🔹**!classementgeneral**: affiche le classement complet des ${CURRENCY}.\n🔹**!send**: Permet d'envoyer une image lors des evenements.\n\n🔸Commandes admin :\n🔹**!addcoin @user value**: ajout de ${CURRENCY}.\n🔹**!removecoin @user value**: retrait de ${CURRENCY}.\n🔹**!kdo @user value**: don de cadeaux en échange de ${CURRENCY}.\n🔹**!resultat**: Affiche les messages des participants aux events mysteres.`
       )
       .setColor("#165416");
 
