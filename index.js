@@ -49,12 +49,14 @@ const pool = new Pool({
       )
     `);
     await pool.query(`
+    DROP TABLE submissions
+    `);
+    await pool.query(`
     CREATE TABLE IF NOT EXISTS submissions (
   user_id TEXT PRIMARY KEY,
   file_path TEXT NOT NULL,
   file_name TEXT NOT NULL,
   submitted_at TIMESTAMP DEFAULT NOW()
-);
 )
     `);
     console.log("✅ DB Postgres prête !");
