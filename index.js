@@ -513,7 +513,7 @@ client.on("messageCreate", async (message) => {
 \n🔹 Si vous envoyez deux fois un skin, le 2ème écrasera le 1er.
 \n🔹 Pour le respect de l'évènement on vous demandera de ne pas copier des skins déjà fait, si une triche a lieu nous procéderons à des sanctions sur les participations.`
       )
-      .setColor("#b419a7ff");
+      .setColor("#b419a7");
 
     message.channel.send({ embeds: [embed] });
   }
