@@ -437,9 +437,7 @@ client.on("messageCreate", async (message) => {
       }
 
       for (const row of res.rows) {
-        await message.channel.send({
-          files: [row.image_url],
-        });
+        await message.channel.send(row.image_url);
       }
     } catch (err) {
       console.error(err);
