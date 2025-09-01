@@ -46,6 +46,13 @@ const pool = new Pool({
         balance INTEGER DEFAULT 0
       )
     `);
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS submissions (
+    user_id TEXT PRIMARY KEY,
+    image_url TEXT NOT NULL,
+    submitted_at TIMESTAMP DEFAULT NOW()
+)
+    `);
     console.log("✅ DB Postgres prête !");
   } catch (err) {
     console.error("❌ Erreur DB:", err.message);
@@ -67,6 +74,35 @@ async function getBalance(userId) {
   } catch (err) {
     console.error("❌ Erreur getBalance:", err.message);
     return 0;
+  }
+}
+const res = await pool.query(
+  "SELECT * FROM submissions ORDER BY submitted_at ASC"
+);
+
+async function getSubmissions() {
+  try {
+    const res = await pool.query(
+      "SELECT * FROM submissions ORDER BY submitted_at ASC"
+    );
+    return res.rows.length > 0 ? res.rows[0].balance : 0;
+  } catch (err) {
+    console.error("❌ Erreur getSubmissions:", err.message);
+    return 0;
+  }
+}
+
+async function updateSubmissions(userId, imageUrl) {
+  try {
+    await pool.query(
+      `INSERT INTO submissions (user_id, image_url)
+         VALUES ($1, $2)
+         ON CONFLICT (user_id)
+         DO UPDATE SET image_url = $2, submitted_at = NOW()`,
+      [userId, imageUrl]
+    );
+  } catch (err) {
+    console.error("❌ Erreur updateSubmissions:", err.message);
   }
 }
 
@@ -111,7 +147,14 @@ async function getRanking() {
   }
 }
 
-export { getBalance, addBalance, removeBalance, getRanking };
+export {
+  getBalance,
+  addBalance,
+  removeBalance,
+  getRanking,
+  updateSubmissions,
+  getSubmissions,
+};
 
 // Nom de la monnaie
 const CURRENCY = "🪙 Magik Coins";
@@ -131,6 +174,8 @@ client.once("clientReady", () => {
  * - magik-rusher
  * - liste des commandes
  * - classement général
+ * - send
+ * - sendus
  */
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
@@ -345,6 +390,62 @@ client.on("messageCreate", async (message) => {
       .setColor("#165416");
 
     message.channel.send({ embeds: [embed] });
+  }
+
+  // --- Commande !send ---
+  if (command === "!send") {
+    const attachment = message.attachments.first();
+
+    if (!attachment) {
+      await message.reply("⚠️ Merci d’envoyer une image avec la commande !");
+      return;
+    }
+
+    const imageUrl = attachment.url;
+    const userId = message.author.id;
+
+    try {
+      await updateSubmissions(userId, imageUrl);
+
+      // Supprimer le message original pour garder la surprise
+      await message.delete();
+
+      // Confirmation en MP
+      await message.author.send("✅ Ton screen a bien été enregistré !");
+    } catch (err) {
+      console.error(err);
+      await message.reply("❌ Erreur lors de l’enregistrement.");
+    }
+  }
+
+  // --- Commande !sendus ---
+  if (command === "!sendus") {
+    // Optionnel : vérifier si l’utilisateur est admin
+    if (!message.member.roles.cache.has("1271882131848822836")) {
+      await message.reply(
+        "⚠️ Tu n’as pas la permission d’utiliser cette commande."
+      );
+      return;
+    }
+
+    try {
+      const res = await getSubmission();
+
+      if (res.rows.length === 0) {
+        await message.reply("⚠️ Aucune image enregistrée.");
+        return;
+      }
+
+      for (const row of res.rows) {
+        await message.channel.send({
+          content: `<@${row.user_id}>`,
+          files: [row.image_url],
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      await message.reply("❌ Erreur lors de la récupération des images.");
+    }
   }
 });
 
