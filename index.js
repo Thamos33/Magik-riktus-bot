@@ -429,7 +429,7 @@ client.on("messageCreate", async (message) => {
     }
 
     try {
-      const res = await getSubmission();
+      const res = await getSubmissions();
 
       if (res.rows.length === 0) {
         await message.reply("⚠️ Aucune image enregistrée.");
@@ -438,7 +438,7 @@ client.on("messageCreate", async (message) => {
 
       for (const row of res.rows) {
         await message.channel.send({
-          content: `<@${row.user_id}>`,
+          content: ``,
           files: [row.image_url],
         });
       }
