@@ -55,6 +55,9 @@ const pool = new Pool({
       )
     `);
     await pool.query(`
+      TRUNCATE TABLE submissions
+    `);
+    await pool.query(`
     CREATE TABLE IF NOT EXISTS submissions (
   user_id TEXT PRIMARY KEY,
   file_path TEXT NOT NULL,
@@ -497,7 +500,7 @@ client.on("messageCreate", async (message) => {
     const embed = new EmbedBuilder()
       .setTitle("🤖 Les commandes 🤖")
       .setDescription(
-        `🔹**!magik-rusher**: explique les différentes règles de l'évenement hebdomadaire Magik-Rusher.\n🔹**!solde**: donne votre nombre de ${CURRENCY} ou celui d'une personne en ajoutant son @.\n🔹**!classement**: affiche le top 10 des ${CURRENCY} et votre placement.\n🔹**!classementgeneral**: affiche le classement complet des ${CURRENCY}.\n\n🔸Commandes admin :\n🔹**!addcoin @user value**: ajout de ${CURRENCY}.\n🔹**!removecoin @user value**: retrait de ${CURRENCY}.\n🔹**!kdo @user value**: don de cadeaux en échange de ${CURRENCY}.`
+        `🔹**!magik-rusher**: explique les différentes règles de l'évenement hebdomadaire Magik-Rusher.\n🔹**!solde**: donne votre nombre de ${CURRENCY} ou celui d'une personne en ajoutant son @.\n🔹**!classement**: affiche le top 10 des ${CURRENCY} et votre placement.\n🔹**!classementgeneral**: affiche le classement complet des ${CURRENCY}.\n🔹**!send**: Permet d'envoyer une image lors des evenements\n\n🔸Commandes admin :\n🔹**!addcoin @user value**: ajout de ${CURRENCY}.\n🔹**!removecoin @user value**: retrait de ${CURRENCY}.\n🔹**!kdo @user value**: don de cadeaux en échange de ${CURRENCY}.\n🔹**!resultat**: Affiche les messages des participants aux events mystere`
       )
       .setColor("#165416");
 
@@ -509,8 +512,8 @@ client.on("messageCreate", async (message) => {
     await handleSend(message, pool);
   }
 
-  // --- Commande !sendus ---
-  if (command === "!sendus") {
+  // --- Commande !resultat ---
+  if (command === "!resultat") {
     await handleSendUs(message, pool);
   }
 });
