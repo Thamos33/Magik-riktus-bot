@@ -245,18 +245,10 @@ async function handleSendUs(message, pool) {
 
       // Deux options équivalentes:
 
-      // A) Envoyer par chemin local (discord.js sait lire le fichier)
+      // Envoyer par chemin local
       await message.channel.send({
-        content: `Screen de <@${row.user_id}>`,
         files: [{ attachment: row.file_path, name: row.file_name }],
       });
-
-      // B) Ou lire en buffer si tu préfères:
-      // const buf = await fs.readFile(row.file_path);
-      // await message.channel.send({
-      //   content: `Screen de <@${row.user_id}>`,
-      //   files: [new AttachmentBuilder(buf, { name: row.file_name })],
-      // });
     } catch (e) {
       console.error("Envoi échoué pour", row.user_id, e);
       await message.channel.send(
