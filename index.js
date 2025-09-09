@@ -55,14 +55,15 @@ const pool = new Pool({
       )
     `);
     await pool.query(`
-      TRUNCATE TABLE submissions
+      DROP TABLE submissions
     `);
     await pool.query(`
     CREATE TABLE IF NOT EXISTS submissions (
-  user_id TEXT PRIMARY KEY,
-  file_path TEXT NOT NULL,
-  file_name TEXT NOT NULL,
-  submitted_at TIMESTAMP DEFAULT NOW()
+    id SERIAL PRIMARY KEY,
+    user_id TEXT UNIQUE NOT NULL,
+    username TEXT NOT NULL,
+    file_path TEXT NOT NULL,
+    file_name TEXT NOT NULL
 )
     `);
     console.log("✅ DB Postgres prête !");
@@ -96,7 +97,7 @@ const res = await pool.query(
 async function getSubmissions() {
   try {
     const res = await pool.query(
-      "SELECT user_id, file_path, file_name FROM submissions ORDER BY submitted_at ASC"
+      "SELECT user_id, username, file_path, file_name FROM submissions ORDER BY id ASC"
     );
     return res;
   } catch (err) {
@@ -106,14 +107,17 @@ async function getSubmissions() {
 }
 
 // Mettre a jour une submissions
-async function updateSubmissions(userId, filePath, fileName) {
+async function updateSubmissions(userId, userName, filePath, fileName) {
   try {
     await pool.query(
-      `INSERT INTO submissions (user_id, file_path, file_name, submitted_at)
-    VALUES ($1, $2, $3, NOW())
-    ON CONFLICT (user_id)
-    DO UPDATE SET file_path = EXCLUDED.file_path, file_name = EXCLUDED.file_name, submitted_at = NOW()`,
-      [userId, filePath, fileName]
+      `INSERT INTO submissions (user_id, username, file_path, file_name)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (user_id)
+       DO UPDATE SET 
+         username = EXCLUDED.username, 
+         file_path = EXCLUDED.file_path, 
+         file_name = EXCLUDED.file_name`,
+      [userId, userName, filePath, fileName]
     );
   } catch (err) {
     console.error("❌ Erreur updateSubmissions:", err.message);
@@ -210,7 +214,12 @@ async function handleSend(message, pool) {
 
   await fs.writeFile(filePath, buffer);
 
-  await updateSubmissions(message.author.id, filePath, fileName);
+  await updateSubmissions(
+    message.author.id,
+    message.author.username,
+    filePath,
+    fileName
+  );
 
   if (prev.rowCount > 0) {
     const oldPath = prev.rows[0].file_path;
@@ -246,15 +255,13 @@ async function handleSendUs(message, pool) {
       await fs.access(row.file_path);
 
       await message.channel.send({
-        content: `👗 Skin #${index + 1}`,
+        content: `👗 Skin #${row.id}`,
         files: [{ attachment: row.file_path, name: row.file_name }],
       });
     } catch (e) {
       console.error("Envoi échoué pour", row.user_id, e);
       await message.channel.send(
-        `⚠️ Impossible d’envoyer le screen #${index + 1} de <@${
-          row.user_id
-        }> (fichier manquant).`
+        `⚠️ Impossible d’envoyer le screen #${row.id} de <@${row.username}> (fichier manquant).`
       );
     }
   });
@@ -468,7 +475,14 @@ client.on("messageCreate", async (message) => {
 
       chunks[c].forEach((row, index) => {
         const rank = c * 30 + index + 1; // numéro global du classement
-        msg += `**${rank}.** <@${row.userid}> — **${row.balance}** ${CURRENCY}\n`;
+
+        // Récupérer le pseudo sur le serveur
+        const member = message.guild.members
+          .fetch(row.userid)
+          .catch(() => null);
+        const displayName = member ? member.displayName : "Utilisateur inconnu";
+
+        msg += `**${rank}.** ${displayName} — **${row.balance}** ${CURRENCY}\n`;
       });
 
       const embed = new EmbedBuilder()
