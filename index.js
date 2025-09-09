@@ -55,9 +55,6 @@ const pool = new Pool({
       )
     `);
     await pool.query(`
-      TRUNCATE TABLE submissions RESTART IDENTITY
-    `);
-    await pool.query(`
     CREATE TABLE IF NOT EXISTS submissions (
     id SERIAL PRIMARY KEY,
     user_id TEXT UNIQUE NOT NULL,
@@ -65,6 +62,9 @@ const pool = new Pool({
     file_path TEXT NOT NULL,
     file_name TEXT NOT NULL
 )
+    `);
+    await pool.query(`
+      TRUNCATE TABLE submissions RESTART IDENTITY
     `);
     console.log("✅ DB Postgres prête !");
   } catch (err) {
