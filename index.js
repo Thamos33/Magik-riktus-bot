@@ -89,9 +89,7 @@ async function getBalance(userId) {
     return 0;
   }
 }
-const res = await pool.query(
-  "SELECT * FROM submissions ORDER BY submitted_at ASC"
-);
+const res = await pool.query("SELECT * FROM submissions ORDER BY id ASC");
 
 // Récupérer toutes les submissions
 async function getSubmissions() {
