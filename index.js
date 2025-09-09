@@ -97,7 +97,7 @@ const res = await pool.query(
 async function getSubmissions() {
   try {
     const res = await pool.query(
-      "SELECT user_id, username, file_path, file_name FROM submissions ORDER BY id ASC"
+      "SELECT id, user_id, username, file_path, file_name FROM submissions ORDER BY id ASC"
     );
     return res;
   } catch (err) {
@@ -451,39 +451,62 @@ client.on("messageCreate", async (message) => {
 
   // classement general
   if (command === "!classementgeneral") {
-    const ranking = await getRanking(); // rows: [{ userid, balance }, ...] déjà triés DESC
+    const ranking = await getRanking(); // [{ userid, balance }, ...] triés DESC
     const nonZero = ranking.filter((r) => r.balance !== 0);
 
     if (nonZero.length === 0) {
       return message.reply("Personne n’a encore de monnaie !");
     }
 
-    // 🔹 Fonction utilitaire pour découper en lots
+    // utilitaire
     function chunkArray(arr, size) {
-      const result = [];
-      for (let i = 0; i < arr.length; i += size) {
-        result.push(arr.slice(i, i + size));
-      }
-      return result;
+      const out = [];
+      for (let i = 0; i < arr.length; i += size)
+        out.push(arr.slice(i, i + size));
+      return out;
     }
 
-    // Découpe le ranking en lots de 30
-    const chunks = chunkArray(ranking, 30);
+    const chunks = chunkArray(nonZero, 30);
 
     for (let c = 0; c < chunks.length; c++) {
+      const page = chunks[c];
       let msg = "";
 
-      chunks[c].forEach((row, index) => {
-        const rank = c * 30 + index + 1; // numéro global du classement
+      // 1) tentative de fetch groupé des membres de la page (si on est en guild)
+      let membersById = new Map();
+      if (message.guild) {
+        try {
+          const ids = page.map((r) => r.userid);
+          const fetched = await message.guild.members.fetch({ user: ids }); // Collection
+          fetched.forEach((m, id) => membersById.set(id, m));
+        } catch (_) {
+          /* si ça échoue, on tombera sur le fallback par user */
+        }
+      }
 
-        // Récupérer le pseudo sur le serveur
-        const member = message.guild.members
-          .fetch(row.userid)
-          .catch(() => null);
-        const displayName = member ? member.displayName : "Utilisateur inconnu";
+      // 2) construit le message avec fallback robuste
+      for (let i = 0; i < page.length; i++) {
+        const row = page[i];
+        const rank = c * 30 + i + 1;
 
-        msg += `**${rank}.** ${displayName} — **${row.balance}** ${CURRENCY}\n`;
-      });
+        let name;
+        const m = membersById.get(row.userid);
+        if (m) {
+          name =
+            m.displayName ??
+            m.user?.globalName ??
+            m.user?.username ??
+            `Utilisateur ${row.userid}`;
+        } else {
+          name = await resolveDisplayName(
+            message.client,
+            message.guild,
+            row.userid
+          );
+        }
+
+        msg += `**${rank}.** **${name}** — **${row.balance}** ${CURRENCY}\n`;
+      }
 
       const embed = new EmbedBuilder()
         .setTitle(
