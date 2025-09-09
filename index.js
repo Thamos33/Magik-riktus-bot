@@ -55,7 +55,7 @@ const pool = new Pool({
       )
     `);
     await pool.query(`
-      DROP TABLE submissions
+      TRUNCATE TABLE submissions RESTART IDENTITY
     `);
     await pool.query(`
     CREATE TABLE IF NOT EXISTS submissions (
