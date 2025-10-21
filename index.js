@@ -591,7 +591,7 @@ client.on("messageCreate", async (message) => {
 
   if (command === "fr-reset") {
     // Optionnel : tu peux vérifier que seul un admin ou un certain rôle peut exécuter
-    if (!message.member.permissions.has("Administrator")) {
+    if (!message.member.roles.cache.has("1271882131848822836")) {
       return message.reply(
         "❌ Tu n’as pas la permission d’utiliser cette commande."
       );
