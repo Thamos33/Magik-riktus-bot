@@ -303,26 +303,26 @@ const COMMAND_PREFIX = "!";
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
 
-  try {
-    if (!AUTO_CLEAN_CHANNELS_IMG.includes(message.channel.id)) return;
-
-    if (message.channel.isThread()) return;
-
-    if (message.content.trim().startsWith(COMMAND_PREFIX)) return;
-
-    const hasImage = message.attachments.some((a) =>
-      a.contentType?.startsWith("image/")
-    );
-
-    if (!hasImage) {
-      await message.delete();
-      console.log(`🗑️ Message supprimé dans #${message.channel.name}`);
-      await message.author.send(
-        `👋 Salut ${message.author.username} !\n\nTon message dans **#${message.channel.name}** a été supprimé car il ne contenait pas d’image.\nMerci de ne poster que des images dans ce salon ou d'intéragir avec ces dernieres via les fils de discussion !`
-      );
+  if (AUTO_CLEAN_CHANNELS_IMG.includes(message.channel.id)) {
+    try {
+      if (
+        !message.channel.isThread() &&
+        !message.content.trim().startsWith(COMMAND_PREFIX)
+      ) {
+        const hasImage = message.attachments.some((a) =>
+          a.contentType?.startsWith("image/")
+        );
+        if (!hasImage) {
+          await message.delete();
+          await message.author.send(
+            `👋 Salut ${message.author.username}, ton message dans **#${message.channel.name}** a été supprimé car il ne contenait pas d’image.`
+          );
+          return;
+        }
+      }
+    } catch (err) {
+      console.error("❌ Erreur nettoyage:", err.message);
     }
-  } catch (err) {
-    console.error("❌ Erreur lors du nettoyage automatique :", err.message);
   }
 
   const args = message.content.split(" ");
