@@ -294,7 +294,11 @@ client.once("clientReady", () => {
 
 const AUTO_CLEAN_CHANNELS_IMG = [
   "1350937297142419558", // salon "screens"
+  "1360338547827282262", // Salon "Magik-Rusher"
 ];
+
+// Préfixe des commandes de ton bot
+const COMMAND_PREFIX = "!";
 
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
@@ -304,6 +308,8 @@ client.on("messageCreate", async (message) => {
 
     if (message.channel.isThread()) return;
 
+    if (message.content.trim().startsWith(COMMAND_PREFIX)) return;
+
     const hasImage = message.attachments.some((a) =>
       a.contentType?.startsWith("image/")
     );
@@ -312,7 +318,7 @@ client.on("messageCreate", async (message) => {
       await message.delete();
       console.log(`🗑️ Message supprimé dans #${message.channel.name}`);
       await message.author.send(
-        `👋 Salut ${message.author.username} !\n\nTon message dans **#${message.channel.name}** a été supprimé car il ne contenait pas d’image.\nMerci de ne poster que des images dans ce salon. 📸`
+        `👋 Salut ${message.author.username} !\n\nTon message dans **#${message.channel.name}** a été supprimé car il ne contenait pas d’image.\nMerci de ne poster que des images dans ce salon ou d'intéragir avec ces dernieres via les fils de discussion !`
       );
     }
   } catch (err) {
