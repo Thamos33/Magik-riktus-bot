@@ -63,10 +63,6 @@ const pool = new Pool({
     file_name TEXT NOT NULL
 )
     `);
-    await pool.query(`
-      TRUNCATE TABLE submissions RESTART IDENTITY
-    `);
-    console.log("✅ DB Postgres prête !");
   } catch (err) {
     console.error("❌ Erreur DB:", err.message);
   }
@@ -89,7 +85,6 @@ async function getBalance(userId) {
     return 0;
   }
 }
-const res = await pool.query("SELECT * FROM submissions ORDER BY id ASC");
 
 // Récupérer toutes les submissions
 async function getSubmissions() {
@@ -296,8 +291,33 @@ client.once("clientReady", () => {
  * - send
  * - sendus
  */
+
+const AUTO_CLEAN_CHANNELS_IMG = [
+  "1350937297142419558", // salon "screens"
+];
+
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
+
+  try {
+    if (!AUTO_CLEAN_CHANNELS_IMG.includes(message.channel.id)) return;
+
+    if (message.channel.isThread()) return;
+
+    const hasImage = message.attachments.some((a) =>
+      a.contentType?.startsWith("image/")
+    );
+
+    if (!hasImage) {
+      await message.delete();
+      console.log(`🗑️ Message supprimé dans #${message.channel.name}`);
+      await message.author.send(
+        `👋 Salut ${message.author.username} !\n\nTon message dans **#${message.channel.name}** a été supprimé car il ne contenait pas d’image.\nMerci de ne poster que des images dans ce salon. 📸`
+      );
+    }
+  } catch (err) {
+    console.error("❌ Erreur lors du nettoyage automatique :", err.message);
+  }
 
   const args = message.content.split(" ");
   const command = args.shift().toLowerCase();
@@ -561,6 +581,26 @@ client.on("messageCreate", async (message) => {
   // --- Commande !resultat ---
   if (command === "!resultat") {
     await handleSendUs(message, pool);
+  }
+
+  if (command === "fr-reset") {
+    // Optionnel : tu peux vérifier que seul un admin ou un certain rôle peut exécuter
+    if (!message.member.permissions.has("Administrator")) {
+      return message.reply(
+        "❌ Tu n’as pas la permission d’utiliser cette commande."
+      );
+    }
+
+    try {
+      await pool.query(`TRUNCATE TABLE submissions RESTART IDENTITY`);
+      await message.reply("✅ Toutes les soumissions ont été réinitialisées !");
+      console.log("🔄 Table 'submissions' vidée avec succès.");
+    } catch (err) {
+      console.error("❌ Erreur lors du reset:", err.message);
+      await message.reply(
+        "❌ Une erreur est survenue lors du reset de la table."
+      );
+    }
   }
 });
 
