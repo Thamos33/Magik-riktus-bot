@@ -3,7 +3,7 @@ import { removeBalance, getBalance } from "../utils/balance.js";
 
 export const data = new SlashCommandBuilder()
   .setName("removecoin")
-  .setDescription("Retire des 🪙 Magik Coins d'un utilisateur (admin)")
+  .setDescription("Retire des Magik-Coins🪙 d'un utilisateur (admin)")
   .addUserOption((option) =>
     option
       .setName("utilisateur")
@@ -31,9 +31,9 @@ export async function execute(interaction, pool) {
   const balance = await getBalance(target.id, pool);
 
   const embed = new EmbedBuilder()
-    .setTitle(`Perte 🪙 Magik Coins`)
+    .setTitle(`Perte Magik-Coins🪙`)
     .setDescription(
-      `**${amount}** 🪙 retirés à <@${target.id}>.\nSolde : **${balance}** 🪙`
+      `**${amount}** Magik-Coins🪙 retirés à <@${target.id}>.\nSolde : **${balance}** Magik-Coins🪙`
     )
     .setColor("#9e0e40");
 

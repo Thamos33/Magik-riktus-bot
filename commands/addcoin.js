@@ -3,7 +3,7 @@ import { addBalance, getBalance } from "../utils/balance.js";
 
 export const data = new SlashCommandBuilder()
   .setName("addcoin")
-  .setDescription("Ajoute des 🪙 Magik Coins à un utilisateur (admin)")
+  .setDescription("Ajoute des Magik-Coins🪙 à un utilisateur (admin)")
   .addUserOption((option) =>
     option
       .setName("utilisateur")
@@ -31,9 +31,9 @@ export async function execute(interaction, pool) {
   const balance = await getBalance(target.id, pool);
 
   const embed = new EmbedBuilder()
-    .setTitle(`Gain 🪙 Magik Coins`)
+    .setTitle(`Gain Magik-Coins🪙`)
     .setDescription(
-      `**${amount}** 🪙 ajoutés à <@${target.id}>.\nSolde : **${balance}** 🪙`
+      `**${amount}** Magik-Coins🪙 ajoutés à <@${target.id}>.\nSolde : **${balance}** Magik-Coins🪙`
     )
     .setColor("#5CA25F");
 

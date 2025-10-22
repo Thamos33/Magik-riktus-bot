@@ -3,7 +3,7 @@ import { removeBalance, getBalance } from "../utils/balance.js";
 
 export const data = new SlashCommandBuilder()
   .setName("kdo")
-  .setDescription("Donne des cadeaux en échange de 🪙 Magik Coins (admin)")
+  .setDescription("Donne des cadeaux en échange de Magik-Coins🪙 (admin)")
   .addUserOption((option) =>
     option
       .setName("utilisateur")
@@ -34,7 +34,7 @@ export async function execute(interaction, pool) {
   const embed = new EmbedBuilder()
     .setTitle("🎁 Cadeaux ! 🎁")
     .setDescription(
-      `**${cost}** 🪙 retirés à <@${target.id}> pour ${quantity} cadeaux.\nSolde : **${balance}** 🪙`
+      `**${cost}** Magik-Coins🪙 retirés à <@${target.id}> pour ${quantity} cadeaux.\nSolde : **${balance}** Magik-Coins🪙`
     )
     .setColor("#9e0e40");
 

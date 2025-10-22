@@ -5,6 +5,7 @@ export const data = new SlashCommandBuilder()
   .setDescription("Affiche les règles du Fashion-Riktus");
 
 export async function execute(interaction) {
+  const CURRENCY = "Magik-Coins🪙";
   const embed = new EmbedBuilder()
     .setTitle("🌸 Fashion-Riktus 🌸")
     .setDescription(

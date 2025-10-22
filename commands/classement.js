@@ -3,7 +3,7 @@ import { getRanking, getBalance } from "../utils/balance.js";
 
 export const data = new SlashCommandBuilder()
   .setName("classement")
-  .setDescription("Affiche le top 10 des 🪙 Magik Coins");
+  .setDescription("Affiche le top 10 des Magik-Coins🪙");
 
 export async function execute(interaction, pool) {
   const ranking = await getRanking(pool);
@@ -18,14 +18,18 @@ export async function execute(interaction, pool) {
 
   let msg = "";
   if (myBalance > 0 && myIndex !== -1) {
-    msg += `**Ta place :** ${myIndex + 1}ᵉ avec **${myBalance}** 🪙.\n\n`;
+    msg += `**Ta place :** ${
+      myIndex + 1
+    }ᵉ avec **${myBalance}** Magik-Coins🪙.\n\n`;
   } else {
-    msg += "**Ta place :** Vous n'avez pas encore de 🪙 Magik Coins.\n\n";
+    msg += "**Ta place :** Vous n'avez pas encore de Magik-Coins🪙.\n\n";
   }
 
   msg += "**Top 10 :**\n";
   top10.forEach((row, index) => {
-    msg += `**${index + 1}.** <@${row.userid}> — **${row.balance}** 🪙\n`;
+    msg += `**${index + 1}.** <@${row.userid}> — **${
+      row.balance
+    }** Magik-Coins🪙\n`;
   });
 
   const embed = new EmbedBuilder()

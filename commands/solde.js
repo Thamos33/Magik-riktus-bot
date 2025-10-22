@@ -31,7 +31,7 @@ export async function execute(interaction, pool) {
         ? "Mon solde"
         : `Le solde de ${displayName}`
     )
-    .setDescription(`**${balance}** 🪙 Magik Coins`)
+    .setDescription(`**${balance}** Magik-Coins🪙`)
     .setColor("#165416");
 
   await interaction.reply({ embeds: [embed] });

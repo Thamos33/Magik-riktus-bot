@@ -11,7 +11,7 @@ export async function execute(interaction) {
       `🔹 /magik-rusher : règles de l'événement Magik-Rusher
 🔹 /fashion-riktus : règles du Fashion-Riktus
 🔹 /solde : affiche ton solde ou celui d'un utilisateur
-🔹 /classement : top 10 des 🪙
+🔹 /classement : top 10 des Magik-Coins🪙
 🔹 /classementgeneral : classement complet
 🔹 /send : envoyer une image pour un événement
 🔹 /resultat : voir les soumissions pour Fashion-Riktus\n
