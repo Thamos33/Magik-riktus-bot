@@ -15,11 +15,21 @@ export async function execute(interaction, pool) {
   const target = interaction.options.getUser("utilisateur") || interaction.user;
   const balance = await getBalance(target.id, pool);
 
+  let displayName = target.username;
+  if (interaction.guild) {
+    try {
+      const member = await interaction.guild.members.fetch(target.id);
+      displayName = member.displayName;
+    } catch {
+      displayName = target.username;
+    }
+  }
+
   const embed = new EmbedBuilder()
     .setTitle(
       target.id === interaction.user.id
         ? "Mon solde"
-        : `Le solde de ${target.username}`
+        : `Le solde de ${displayName}`
     )
     .setDescription(`**${balance}** 🪙 Magik Coins`)
     .setColor("#165416");

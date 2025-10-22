@@ -1,9 +1,15 @@
 import fs from "fs";
 import path from "path";
-import { Client, GatewayIntentBits, Collection, Partials } from "discord.js";
+import {
+  Client,
+  GatewayIntentBits,
+  Collection,
+  Partials,
+  MessageType,
+  REST,
+  Routes,
+} from "discord.js";
 import pkg from "pg";
-import { REST, Routes } from "discord.js";
-
 const { Pool } = pkg;
 
 const client = new Client({
@@ -119,36 +125,43 @@ client.login(process.env.TOKEN);
 // ---------------------------
 // messageCreate handler
 // ---------------------------
+
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
 
   // Vérifie si le message est dans un channel filtré
-  if (AUTO_CLEAN_CHANNELS_IMG.includes(message.channel.id)) {
-    try {
-      // Ignore les threads et les messages qui commencent par le préfixe
-      if (
-        !message.channel.isThread() &&
-        !message.content.trim().startsWith(COMMAND_PREFIX)
-      ) {
-        const hasImage = message.attachments.some(
-          (a) =>
-            a.contentType?.startsWith("image/") ||
-            /\.(png|jpe?g|gif|webp)$/i.test(a.name ?? "")
-        );
+  if (!AUTO_CLEAN_CHANNELS_IMG.includes(message.channel.id)) return;
 
-        // Supprime le message si pas d'image
-        if (!hasImage) {
-          await message.delete();
-          await message.author
-            .send(
-              `👋 Salut ${message.author.username}, ton message dans **#${message.channel.name}** a été supprimé car il ne contenait pas d’image.`
-            )
-            .catch(() => {}); // Ignore si MP impossible
-          return;
-        }
-      }
-    } catch (err) {
-      console.error("❌ Erreur nettoyage:", err.message);
+  try {
+    // Message système (ex: création de thread)
+    if (message.type !== MessageType.Default) {
+      await message.delete().catch(() => {});
+      return; // On ne notifie pas l'utilisateur
     }
+
+    // Ignore les threads et les messages qui commencent par le préfixe
+    if (
+      message.channel.isThread() ||
+      message.content.trim().startsWith(COMMAND_PREFIX)
+    )
+      return;
+
+    const hasImage = message.attachments.some(
+      (a) =>
+        a.contentType?.startsWith("image/") ||
+        /\.(png|jpe?g|gif|webp)$/i.test(a.name ?? "")
+    );
+
+    // Supprime le message si pas d'image et notifie l'utilisateur
+    if (!hasImage) {
+      await message.delete().catch(() => {});
+      await message.author
+        .send(
+          `👋 Salut ${message.author.username}, ton message dans **#${message.channel.name}** a été supprimé car il ne contenait pas d’image.`
+        )
+        .catch(() => {}); // Ignore si MP impossible
+    }
+  } catch (err) {
+    console.error("❌ Erreur nettoyage:", err.message);
   }
 });
