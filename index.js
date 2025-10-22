@@ -52,12 +52,19 @@ for (const file of commandFiles) {
 
 const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);
 const commandsData = client.commands.map((cmd) => cmd.data.toJSON());
+console.log(
+  "Commandes détectées :",
+  commandsData.map((c) => c.name)
+);
 
 // Enregistrement automatique global (ou pour un serveur spécifique)
 try {
   console.log("🔄 Enregistrement des commandes slash...");
   await rest.put(
-    Routes.applicationCommands(process.env.CLIENT_ID), // ou applicationGuildCommands pour test
+    Routes.applicationGuildCommands(
+      process.env.CLIENT_ID,
+      process.env.GUILD_ID
+    ),
     { body: commandsData }
   );
   console.log("✅ Commandes enregistrées avec succès !");
