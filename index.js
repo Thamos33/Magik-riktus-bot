@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { Client, GatewayIntentBits, Collection, Partials } from "discord.js";
 import pkg from "pg";
+import { REST, Routes } from "discord.js";
 
 const { Pool } = pkg;
 
@@ -47,6 +48,21 @@ for (const file of commandFiles) {
   const filePath = path.join(commandsPath, file);
   const command = await import(filePath);
   client.commands.set(command.data.name, command);
+}
+
+const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);
+const commandsData = client.commands.map((cmd) => cmd.data.toJSON());
+
+// Enregistrement automatique global (ou pour un serveur spécifique)
+try {
+  console.log("🔄 Enregistrement des commandes slash...");
+  await rest.put(
+    Routes.applicationCommands(process.env.CLIENT_ID), // ou applicationGuildCommands pour test
+    { body: commandsData }
+  );
+  console.log("✅ Commandes enregistrées avec succès !");
+} catch (err) {
+  console.error("❌ Erreur lors de l'enregistrement :", err);
 }
 
 // ---------------------------

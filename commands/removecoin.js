@@ -18,7 +18,7 @@ export const data = new SlashCommandBuilder()
   );
 
 export async function execute(interaction, pool) {
-  if (!interaction.member.roles.cache.has("1271882131848822836"))
+  if (!interaction.member.roles.cache.has(process.env.ADMINID))
     return interaction.reply({
       content: "🚫 Tu n'as pas la permission.",
       ephemeral: true,
