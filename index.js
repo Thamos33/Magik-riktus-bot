@@ -10,6 +10,8 @@ import {
   Routes,
 } from "discord.js";
 import pkg from "pg";
+import { startScheduler } from "./utils/scheduler.js";
+
 const { Pool } = pkg;
 
 const client = new Client({
@@ -64,8 +66,10 @@ const commandFiles = fs
 
 for (const file of commandFiles) {
   const filePath = path.join(commandsPath, file);
-  const command = await import(filePath);
-  client.commands.set(command.data.name, command);
+  client.commands.set(command.data.name, {
+    data: command.data,
+    execute: command.execute,
+  });
 }
 
 const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);
@@ -95,6 +99,7 @@ try {
 // ---------------------------
 client.once("ready", () => {
   console.log(`✅ Connecté en tant que ${client.user.tag}`);
+  startScheduler(client, pool); // Démarrage du cron pour les messages programmés
 });
 
 // ---------------------------
