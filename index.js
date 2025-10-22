@@ -66,6 +66,7 @@ const commandFiles = fs
 
 for (const file of commandFiles) {
   const filePath = path.join(commandsPath, file);
+  const command = await import(filePath);
   client.commands.set(command.data.name, {
     data: command.data,
     execute: command.execute,
