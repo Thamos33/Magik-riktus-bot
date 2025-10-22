@@ -1,6 +1,5 @@
 // clearGlobalCommands.js
 import { REST, Routes } from "discord.js";
-import "dotenv/config";
 
 if (!process.env.TOKEN || !process.env.CLIENT_ID) {
   console.error("❌ TOKEN ou CLIENT_ID manquant !");
