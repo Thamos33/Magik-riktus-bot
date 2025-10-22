@@ -36,6 +36,18 @@ const pool = new Pool({
 });
 
 // ---------------------------
+// Variables
+// ---------------------------
+// Channels où les messages sont filtrés
+const AUTO_CLEAN_CHANNELS_IMG = [
+  "1350937297142419558", // salon "screens"
+  "1360338547827282262", // salon "Magik-Rusher"
+];
+
+// Préfixe pour les anciennes commandes (si tu veux garder les préfixes pour ce traitement)
+const COMMAND_PREFIX = "/";
+
+// ---------------------------
 // Charger les commandes
 // ---------------------------
 client.commands = new Collection();
@@ -103,3 +115,40 @@ client.on("interactionCreate", async (interaction) => {
 // Connexion
 // ---------------------------
 client.login(process.env.TOKEN);
+
+// ---------------------------
+// messageCreate handler
+// ---------------------------
+client.on("messageCreate", async (message) => {
+  if (message.author.bot) return;
+
+  // Vérifie si le message est dans un channel filtré
+  if (AUTO_CLEAN_CHANNELS_IMG.includes(message.channel.id)) {
+    try {
+      // Ignore les threads et les messages qui commencent par le préfixe
+      if (
+        !message.channel.isThread() &&
+        !message.content.trim().startsWith(COMMAND_PREFIX)
+      ) {
+        const hasImage = message.attachments.some(
+          (a) =>
+            a.contentType?.startsWith("image/") ||
+            /\.(png|jpe?g|gif|webp)$/i.test(a.name ?? "")
+        );
+
+        // Supprime le message si pas d'image
+        if (!hasImage) {
+          await message.delete();
+          await message.author
+            .send(
+              `👋 Salut ${message.author.username}, ton message dans **#${message.channel.name}** a été supprimé car il ne contenait pas d’image.`
+            )
+            .catch(() => {}); // Ignore si MP impossible
+          return;
+        }
+      }
+    } catch (err) {
+      console.error("❌ Erreur nettoyage:", err.message);
+    }
+  }
+});
