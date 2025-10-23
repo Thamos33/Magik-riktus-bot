@@ -7,13 +7,13 @@ export const data = new SlashCommandBuilder()
   .addUserOption((option) =>
     option
       .setName("utilisateur")
-      .setDescription("L'utilisateur qui recevra les coins")
+      .setDescription("L'utilisateur qui recevra les Magik-Coins🪙")
       .setRequired(true)
   )
   .addIntegerOption((option) =>
     option
       .setName("montant")
-      .setDescription("Nombre de coins à ajouter")
+      .setDescription("Nombre de Magik-Coins🪙 à ajouter")
       .setRequired(true)
   );
 

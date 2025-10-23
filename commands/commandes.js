@@ -14,6 +14,7 @@ export async function execute(interaction) {
 🔹 /classement : top 10 des Magik-Coins🪙
 🔹 /classementgeneral : classement complet
 🔹 /send : envoyer une image pour un événement
+🔹 /msgdate : programmer un message a envoyer a une date donnée
 🔹 /resultat : voir les soumissions pour Fashion-Riktus\n
 🔸 Commandes admin :
 🔹 /addcoin @user montant

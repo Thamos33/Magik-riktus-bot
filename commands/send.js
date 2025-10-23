@@ -20,7 +20,7 @@ export async function execute(interaction, pool) {
       ephemeral: true,
     });
 
-  await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply();
 
   // Upload direct via URL Discord
   const upload = await cloudinary.uploader.upload(attachment.url, {

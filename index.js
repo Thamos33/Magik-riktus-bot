@@ -80,7 +80,6 @@ console.log(
   commandsData.map((c) => c.name)
 );
 
-// Enregistrement automatique global (ou pour un serveur spécifique)
 try {
   console.log("🔄 Enregistrement des commandes slash...");
   await rest.put(
@@ -135,17 +134,14 @@ client.login(process.env.TOKEN);
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
 
-  // Vérifie si le message est dans un channel filtré
   if (!AUTO_CLEAN_CHANNELS_IMG.includes(message.channel.id)) return;
 
   try {
-    // Message système (ex: création de thread)
     if (message.type !== MessageType.Default) {
       await message.delete().catch(() => {});
-      return; // On ne notifie pas l'utilisateur
+      return;
     }
 
-    // Ignore les threads et les messages qui commencent par le préfixe
     if (
       message.channel.isThread() ||
       message.content.trim().startsWith(COMMAND_PREFIX)
@@ -158,14 +154,13 @@ client.on("messageCreate", async (message) => {
         /\.(png|jpe?g|gif|webp)$/i.test(a.name ?? "")
     );
 
-    // Supprime le message si pas d'image et notifie l'utilisateur
     if (!hasImage) {
       await message.delete().catch(() => {});
       await message.author
         .send(
-          `👋 Salut ${message.author.username}, ton message dans **#${message.channel.name}** a été supprimé car il ne contenait pas d’image.`
+          `👋 Salut ${message.author.username}, ton message dans **#${message.channel.name}** a été supprimé car il ne contenait pas d’image ou n'a pas été envoyé dans un fil.`
         )
-        .catch(() => {}); // Ignore si MP impossible
+        .catch(() => {});
     }
   } catch (err) {
     console.error("❌ Erreur nettoyage:", err.message);

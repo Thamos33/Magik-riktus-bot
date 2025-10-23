@@ -2,12 +2,12 @@ import { SlashCommandBuilder } from "discord.js";
 import { scheduleMessage } from "../utils/autoSend.js";
 
 export const data = new SlashCommandBuilder()
-  .setName("schedule")
+  .setName("msgdate")
   .setDescription("Programmer un message")
   .addChannelOption((option) =>
     option
       .setName("channel")
-      .setDescription("Channel à envoyer")
+      .setDescription("Channel où envoyer")
       .setRequired(true)
   )
   .addStringOption((option) =>
