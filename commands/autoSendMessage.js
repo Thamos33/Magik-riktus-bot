@@ -28,7 +28,7 @@ export async function execute(interaction, pool) {
   await scheduleMessage(channel.id, content, date, pool);
 
   await interaction.reply({
-    content: `Message programmé pour le ${date} à 00:01 ou immédiatement si c'est aujourd'hui.`,
+    content: `Message programmé pour le ${date} à 00:01.`,
     ephemeral: true,
   });
 }
