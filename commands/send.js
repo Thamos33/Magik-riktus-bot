@@ -1,10 +1,9 @@
 import { SlashCommandBuilder } from "discord.js";
+import cloudinary from "../utils/cloudinary.js";
 import {
   updateSubmissions,
   getSubmissionByUser,
 } from "../utils/submissions.js";
-import fs from "fs/promises";
-import path from "path";
 
 export const data = new SlashCommandBuilder()
   .setName("send")
@@ -21,35 +20,28 @@ export async function execute(interaction, pool) {
       ephemeral: true,
     });
 
-  const res = await fetch(attachment.url);
-  const arrayBuf = await res.arrayBuffer();
-  const buffer = Buffer.from(arrayBuf);
+  await interaction.deferReply({ ephemeral: true });
 
-  const ext =
-    path.extname(attachment.name || new URL(attachment.url).pathname) || ".png";
-  const dir = path.join(process.cwd(), "screens");
-  await fs.mkdir(dir, { recursive: true });
-
-  const fileName = `${interaction.user.id}_${Date.now()}${ext}`;
-  const filePath = path.join(dir, fileName);
+  // Upload direct via URL Discord
+  const upload = await cloudinary.uploader.upload(attachment.url, {
+    folder: "discord_screens",
+    public_id: `${interaction.user.id}_${Date.now()}`,
+    overwrite: true,
+  });
 
   const prev = await getSubmissionByUser(interaction.user.id, pool);
-  await fs.writeFile(filePath, buffer);
 
   await updateSubmissions(
     interaction.user.id,
     interaction.user.username,
-    filePath,
-    fileName,
+    upload.secure_url, // file_path
+    upload.public_id, // public_id
     pool
   );
 
-  if (prev?.file_path && prev.file_path !== filePath) {
-    fs.unlink(prev.file_path).catch(() => {});
+  if (prev?.public_id && prev.public_id !== upload.public_id) {
+    await cloudinary.uploader.destroy(prev.public_id).catch(() => {});
   }
 
-  await interaction.reply({
-    content: "✅ Ton screen a bien été enregistré !",
-    ephemeral: true,
-  });
+  await interaction.editReply("✅ Ton screen a bien été enregistré !");
 }

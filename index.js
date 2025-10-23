@@ -31,6 +31,12 @@ const client = new Client({
   ],
 });
 
+import initDB from "./initDB.js";
+
+// Exemple :
+// const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+await initDB(pool);
+
 // ---------------------------
 // Connexion à la base
 // ---------------------------

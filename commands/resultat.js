@@ -22,7 +22,7 @@ export async function execute(interaction, pool) {
       await fs.access(sub.file_path);
       await interaction.channel.send({
         content: `👗 Skin #${sub.id}`,
-        files: [{ attachment: sub.file_path, name: sub.file_name }],
+        files: [sub.file_path],
       });
     } catch {
       await interaction.channel.send(
