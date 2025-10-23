@@ -19,7 +19,6 @@ export async function execute(interaction, pool) {
 
   for (const sub of submissions) {
     try {
-      await fs.access(sub.file_path);
       await interaction.channel.send({
         content: `👗 Skin #${sub.id}\n\n ${sub.file_path}`,
       });
