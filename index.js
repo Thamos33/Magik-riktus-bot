@@ -31,8 +31,6 @@ const client = new Client({
   ],
 });
 
-import initDB from "./initDB.js";
-
 // ---------------------------
 // Connexion à la base
 // ---------------------------
@@ -57,9 +55,6 @@ const AUTO_CLEAN_CHANNELS_IMG = [
 // Préfixe pour les anciennes commandes (si tu veux garder les préfixes pour ce traitement)
 const COMMAND_PREFIX = "/";
 
-// Exemple :
-// const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-await initDB(pool);
 // ---------------------------
 // Charger les commandes
 // ---------------------------
