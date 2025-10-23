@@ -18,12 +18,10 @@ export async function execute(interaction, pool) {
     return interaction.reply("⚠️ Aucune image enregistrée.");
 
   for (const sub of submissions) {
-    console.log(sub.file_path);
     try {
       await fs.access(sub.file_path);
       await interaction.channel.send({
-        content: `👗 Skin #${sub.id}`,
-        files: [sub.file_path],
+        content: `👗 Skin #${sub.id}\n\n ${sub.file_path}`,
       });
     } catch {
       await interaction.channel.send(
