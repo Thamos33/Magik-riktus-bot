@@ -20,7 +20,7 @@ export async function execute(interaction, pool) {
   for (const sub of submissions) {
     try {
       await interaction.channel.send({
-        content: `👗 Skin #${sub.id}\n\n ${sub.file_path}`,
+        content: `👗 Skin #${sub.id}\n\n <${sub.file_path}>`,
       });
     } catch {
       await interaction.channel.send(
