@@ -23,6 +23,14 @@ export function startScheduler(client, pool) {
             await channel.send(msg.content);
           }
 
+          const publicIds = msg.public_id;
+
+          const deleteResult = await cloudinary.api.delete_resources(publicIds);
+
+          console.log(
+            "🧹 Suppression Cloudinary terminée :",
+            deleteResult.deleted
+          );
           await pool.query(`DELETE FROM scheduled_messages WHERE id = $1`, [
             msg.id,
           ]);
