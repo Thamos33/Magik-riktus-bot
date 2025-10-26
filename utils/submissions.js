@@ -1,4 +1,3 @@
-// utils/submissions.js
 export async function updateSubmissions(
   userId,
   username,

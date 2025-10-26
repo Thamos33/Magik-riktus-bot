@@ -2,7 +2,7 @@ import cron from "node-cron";
 
 export function startScheduler(client, pool) {
   cron.schedule(
-    "1 0 * * *",
+    "* * * * *",
     async () => {
       const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
@@ -14,7 +14,14 @@ export function startScheduler(client, pool) {
       for (const msg of rows) {
         try {
           const channel = await client.channels.fetch(msg.channel_id);
-          if (channel) await channel.send(msg.content);
+          if (msg.file_path) {
+            await channel.send({
+              content: msg.content,
+              files: [msg.file_path],
+            });
+          } else {
+            await channel.send(msg.content);
+          }
 
           await pool.query(`DELETE FROM scheduled_messages WHERE id = $1`, [
             msg.id,

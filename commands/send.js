@@ -34,8 +34,8 @@ export async function execute(interaction, pool) {
   await updateSubmissions(
     interaction.user.id,
     interaction.user.username,
-    upload.secure_url, // file_path
-    upload.public_id, // public_id
+    upload.secure_url,
+    upload.public_id,
     pool
   );
 

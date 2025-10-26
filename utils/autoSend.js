@@ -1,11 +1,17 @@
-export async function scheduleMessage(channelId, content, date, pool) {
-  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-
-  const sendDate = date <= today ? today : date;
+export async function scheduleMessage(
+  channelId,
+  content,
+  date,
+  fileUrl,
+  publicId,
+  pool
+) {
+  const today = new Date().toISOString().split("T")[0];
+  const sendDate = date < today ? today : date;
 
   await pool.query(
-    `INSERT INTO scheduled_messages (channel_id, content, send_at)
-     VALUES ($1, $2, $3)`,
-    [channelId, content, sendDate]
+    `INSERT INTO scheduled_messages (channel_id, content, send_at, file_path, public_id)
+     VALUES ($1, $2, $3, $4, $5)`,
+    [channelId, content, sendDate, fileUrl, publicId]
   );
 }

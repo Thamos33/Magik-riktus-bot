@@ -52,7 +52,6 @@ const AUTO_CLEAN_CHANNELS_IMG = [
   "1360338547827282262", // salon "Magik-Rusher"
 ];
 
-// Préfixe pour les anciennes commandes (si tu veux garder les préfixes pour ce traitement)
 const COMMAND_PREFIX = "/";
 
 // ---------------------------
