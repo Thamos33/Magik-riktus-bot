@@ -23,11 +23,11 @@ export const data = new SlashCommandBuilder()
       .setDescription("Message à envoyer")
       .setRequired(true)
   )
-  .addAttachmentOption((option) =>
-    option.setName("image").setDescription("Image à envoyer").setRequired(false)
-  )
   .addStringOption((option) =>
     option.setName("date").setDescription("Date (YYYY-MM-DD)").setRequired(true)
+  )
+  .addAttachmentOption((option) =>
+    option.setName("image").setDescription("Image à envoyer").setRequired(false)
   );
 
 export async function execute(interaction, pool) {
