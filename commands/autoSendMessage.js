@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js";
-import { scheduleMessage } from "../utils/autosend.js";
+import { scheduleMessage } from "../utils/auto-send.js";
 import { v2 as cloudinary } from "cloudinary";
 
 cloudinary.config({
