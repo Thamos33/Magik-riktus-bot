@@ -14,13 +14,16 @@ export const data = new SlashCommandBuilder()
 
 export async function execute(interaction, pool) {
   const attachment = interaction.options.getAttachment("image");
+
+  // Empêcher l'affichage public dès le départ
   if (!attachment.contentType?.startsWith("image/"))
     return interaction.reply({
       content: "⚠️ Ce n’est pas une image.",
-      ephemeral: true,
+      ephemeral: true, // <-- réponse privée
     });
 
-  await interaction.deferReply();
+  // Début du traitement en privé
+  await interaction.deferReply({ ephemeral: true });
 
   // Upload direct via URL Discord
   const upload = await cloudinary.uploader.upload(attachment.url, {
@@ -43,5 +46,12 @@ export async function execute(interaction, pool) {
     await cloudinary.uploader.destroy(prev.public_id).catch(() => {});
   }
 
-  await interaction.editReply("✅ Ton screen a bien été enregistré !");
+  // Message privé de confirmation
+  await interaction.editReply({
+    content:
+      "✅ Ton screen a bien été enregistré ! (visible uniquement par toi)",
+  });
+
+  // Message public dans le canal
+  await interaction.channel.send("✨ Un nouveau skin a été envoyé !");
 }
