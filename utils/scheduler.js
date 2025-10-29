@@ -17,7 +17,7 @@ export function startScheduler(client, pool) {
           const channel = await client.channels.fetch(msg.channel_id);
           await channel.send({
             content: msg.role_id
-              ? `<@&${msg.role_id}>\n ${msg.content}`
+              ? `<@&${msg.role_id}>\u200B\n${msg.content}`
               : msg.content,
             allowedMentions: { parse: ["users", "roles", "everyone"] },
             files: msg.file_path ? [msg.file_path] : [],
