@@ -15,14 +15,11 @@ export function startScheduler(client, pool) {
       for (const msg of rows) {
         try {
           const channel = await client.channels.fetch(msg.channel_id);
-          if (msg.file_path) {
-            await channel.send({
-              content: msg.content,
-              files: [msg.file_path],
-            });
-          } else {
-            await channel.send(msg.content);
-          }
+          await channel.send({
+            content: msg.content,
+            allowedMentions: { parse: ["users", "roles", "everyone"] },
+            files: msg.file_path ? [msg.file_path] : [],
+          });
 
           const publicIds = msg.public_id;
 
