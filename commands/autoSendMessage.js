@@ -24,6 +24,12 @@ export const data = new SlashCommandBuilder()
       .setDescription("Channel où envoyer le message")
       .setRequired(true)
   )
+  .addRoleOption((option) =>
+    option
+      .setName("role")
+      .setDescription("Rôle à mentionner dans le message")
+      .setRequired(false)
+  )
   .addAttachmentOption((option) =>
     option
       .setName("image")
@@ -34,6 +40,7 @@ export const data = new SlashCommandBuilder()
 export async function execute(interaction) {
   const channel = interaction.options.getChannel("channel");
   const attachment = interaction.options.getAttachment("image");
+  const role = interaction.options.getRole("role");
 
   // Gestion de l’image Cloudinary si fournie
   let fileUrl = null;
@@ -59,6 +66,7 @@ export async function execute(interaction) {
     channelId: channel.id,
     fileUrl,
     publicId,
+    roleId: role ? role.id : null,
   });
 
   // Création de la modale
