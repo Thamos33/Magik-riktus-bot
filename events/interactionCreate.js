@@ -21,7 +21,7 @@ export default {
         });
       }
 
-      const { channelId, fileUrl, publicId, role_id } = temp;
+      const { channelId, fileUrl, publicId, roleId } = temp;
 
       try {
         await scheduleMessage(
@@ -30,7 +30,7 @@ export default {
           date,
           fileUrl,
           publicId,
-          role_id,
+          roleId,
           pool
         );
 
