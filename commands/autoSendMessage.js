@@ -1,4 +1,3 @@
-// commands/autoSendMessage.js
 import {
   SlashCommandBuilder,
   ModalBuilder,
@@ -6,7 +5,6 @@ import {
   TextInputStyle,
   ActionRowBuilder,
 } from "discord.js";
-import { scheduleMessage } from "../utils/auto-send.js";
 import { v2 as cloudinary } from "cloudinary";
 
 cloudinary.config({
@@ -15,55 +13,76 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// ----------------------
-// 1. Définition de la commande
-// ----------------------
 export const data = new SlashCommandBuilder()
   .setName("msgdate")
-  .setDescription("Programmer un message")
+  .setDescription(
+    "Programmer un message avec une date et une image optionnelle"
+  )
   .addChannelOption((option) =>
     option
       .setName("channel")
-      .setDescription("Channel où envoyer")
+      .setDescription("Channel où envoyer le message")
       .setRequired(true)
   )
-  .addStringOption((option) =>
-    option.setName("date").setDescription("Date (YYYY-MM-DD)").setRequired(true)
-  )
   .addAttachmentOption((option) =>
-    option.setName("image").setDescription("Image à envoyer").setRequired(false)
+    option
+      .setName("image")
+      .setDescription("Image optionnelle à envoyer avec le message")
+      .setRequired(false)
   );
 
-// ----------------------
-// 2. Quand l'utilisateur exécute /msgdate
-// ----------------------
 export async function execute(interaction) {
   const channel = interaction.options.getChannel("channel");
-  const date = interaction.options.getString("date");
   const attachment = interaction.options.getAttachment("image");
 
-  // On encode les infos (channel/date/image) dans le customId de la modale
-  const payload = {
+  // Gestion de l’image Cloudinary si fournie
+  let fileUrl = null;
+  let publicId = null;
+
+  if (attachment) {
+    try {
+      const upload = await cloudinary.uploader.upload(attachment.url, {
+        folder: "discord_screens",
+        public_id: `${interaction.user.id}_${Date.now()}`,
+        overwrite: true,
+      });
+      fileUrl = upload.secure_url;
+      publicId = upload.public_id;
+    } catch (err) {
+      console.error("Erreur Cloudinary :", err);
+    }
+  }
+
+  // Sauvegarde temporaire des infos dans le client (salon + image)
+  if (!interaction.client.tempData) interaction.client.tempData = new Map();
+  interaction.client.tempData.set(interaction.user.id, {
     channelId: channel.id,
-    date,
-    attachment: attachment ? attachment.url : null,
-  };
-  const encoded = Buffer.from(JSON.stringify(payload)).toString("base64");
+    fileUrl,
+    publicId,
+  });
 
   // Création de la modale
   const modal = new ModalBuilder()
-    .setCustomId(`msgdateModal|${encoded}`)
+    .setCustomId("msgdate_modal")
     .setTitle("Programmer un message");
 
   const messageInput = new TextInputBuilder()
-    .setCustomId("messageInput")
-    .setLabel("Message à envoyer")
-    .setStyle(TextInputStyle.Paragraph) // Multi-ligne
-    .setPlaceholder("Ex : **Titre**\\n__Texte sous-ligné__\\nNouvelle ligne…")
+    .setCustomId("message_content")
+    .setLabel("Contenu du message")
+    .setStyle(TextInputStyle.Paragraph)
+    .setPlaceholder("Texte Discord (titres, sauts de ligne, gras, etc.)")
     .setRequired(true);
 
-  const row = new ActionRowBuilder().addComponents(messageInput);
-  modal.addComponents(row);
+  const dateInput = new TextInputBuilder()
+    .setCustomId("message_date")
+    .setLabel("Date d’envoi (YYYY-MM-DD)")
+    .setStyle(TextInputStyle.Short)
+    .setRequired(true);
+
+  modal.addComponents(
+    new ActionRowBuilder().addComponents(messageInput),
+    new ActionRowBuilder().addComponents(dateInput)
+  );
 
   await interaction.showModal(modal);
 }
