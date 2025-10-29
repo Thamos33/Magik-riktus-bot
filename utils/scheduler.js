@@ -1,8 +1,9 @@
 import cron from "node-cron";
+import { v2 as cloudinary } from "cloudinary";
 
 export function startScheduler(client, pool) {
   cron.schedule(
-    "1 0 * * *",
+    "* * * * *",
     async () => {
       const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 

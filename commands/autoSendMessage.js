@@ -1,4 +1,11 @@
-import { SlashCommandBuilder } from "discord.js";
+// commands/autoSendMessage.js
+import {
+  SlashCommandBuilder,
+  ModalBuilder,
+  TextInputBuilder,
+  TextInputStyle,
+  ActionRowBuilder,
+} from "discord.js";
 import { scheduleMessage } from "../utils/auto-send.js";
 import { v2 as cloudinary } from "cloudinary";
 
@@ -8,6 +15,9 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// ----------------------
+// 1. Définition de la commande
+// ----------------------
 export const data = new SlashCommandBuilder()
   .setName("msgdate")
   .setDescription("Programmer un message")
@@ -18,45 +28,42 @@ export const data = new SlashCommandBuilder()
       .setRequired(true)
   )
   .addStringOption((option) =>
-    option
-      .setName("message")
-      .setDescription("Message à envoyer")
-      .setRequired(true)
-  )
-  .addStringOption((option) =>
     option.setName("date").setDescription("Date (YYYY-MM-DD)").setRequired(true)
   )
   .addAttachmentOption((option) =>
     option.setName("image").setDescription("Image à envoyer").setRequired(false)
   );
 
-export async function execute(interaction, pool) {
+// ----------------------
+// 2. Quand l'utilisateur exécute /msgdate
+// ----------------------
+export async function execute(interaction) {
   const channel = interaction.options.getChannel("channel");
-  const content = interaction.options.getString("message");
   const date = interaction.options.getString("date");
   const attachment = interaction.options.getAttachment("image");
 
-  let fileUrl = null;
-  let publicId = null;
+  // On encode les infos (channel/date/image) dans le customId de la modale
+  const payload = {
+    channelId: channel.id,
+    date,
+    attachment: attachment ? attachment.url : null,
+  };
+  const encoded = Buffer.from(JSON.stringify(payload)).toString("base64");
 
-  if (attachment) {
-    try {
-      const upload = await cloudinary.uploader.upload(attachment.url, {
-        folder: "discord_screens",
-        public_id: `${interaction.user.id}_${Date.now()}`,
-        overwrite: true,
-      });
-      fileUrl = upload.secure_url;
-      publicId = upload.public_id;
-    } catch (err) {
-      console.error("Erreur Cloudinary :", err);
-    }
-  }
+  // Création de la modale
+  const modal = new ModalBuilder()
+    .setCustomId(`msgdateModal|${encoded}`)
+    .setTitle("Programmer un message");
 
-  await scheduleMessage(channel.id, content, date, fileUrl, publicId, pool);
+  const messageInput = new TextInputBuilder()
+    .setCustomId("messageInput")
+    .setLabel("Message à envoyer")
+    .setStyle(TextInputStyle.Paragraph) // Multi-ligne
+    .setPlaceholder("Ex : **Titre**\\n__Texte sous-ligné__\\nNouvelle ligne…")
+    .setRequired(true);
 
-  await interaction.reply({
-    content: `✅ Message programmé pour le ${date} à 00:01.`,
-    ephemeral: true,
-  });
+  const row = new ActionRowBuilder().addComponents(messageInput);
+  modal.addComponents(row);
+
+  await interaction.showModal(modal);
 }

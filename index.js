@@ -94,6 +94,15 @@ try {
 }
 
 // ---------------------------
+// Charger les événements
+// ---------------------------
+import interactionCreate from "./events/interactionCreate.js";
+
+client.on(interactionCreate.name, (...args) =>
+  interactionCreate.execute(...args, client, pool)
+);
+
+// ---------------------------
 // Événement ready
 // ---------------------------
 client.once("ready", () => {
