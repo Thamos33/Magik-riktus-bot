@@ -5,7 +5,13 @@ export function startScheduler(client, pool) {
   cron.schedule(
     "* * * * *",
     async () => {
-      const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+      const today = new Date()
+        .toLocaleDateString("fr-FR", {
+          timeZone: "Europe/Paris",
+        })
+        .split("/")
+        .reverse()
+        .join("-"); // Donne YYYY-MM-DD
 
       const { rows } = await pool.query(
         `SELECT * FROM scheduled_messages WHERE sent = FALSE AND send_at <= $1`,
