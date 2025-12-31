@@ -3,17 +3,17 @@ import { addBalance, getBalance } from "../utils/balance.js";
 
 export const data = new SlashCommandBuilder()
   .setName("addcoin")
-  .setDescription("Ajoute des Magik-Coins🪙 à un utilisateur (admin)")
+  .setDescription("Ajoute des Magik-Coins 🪙 à un utilisateur (admin)")
   .addUserOption((option) =>
     option
       .setName("utilisateur")
-      .setDescription("L'utilisateur qui recevra les Magik-Coins🪙")
+      .setDescription("L'utilisateur qui recevra les Magik-Coins 🪙")
       .setRequired(true)
   )
   .addIntegerOption((option) =>
     option
       .setName("montant")
-      .setDescription("Nombre de Magik-Coins🪙 à ajouter")
+      .setDescription("Nombre de Magik-Coins 🪙 à ajouter")
       .setRequired(true)
   );
 

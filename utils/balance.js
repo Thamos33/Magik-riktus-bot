@@ -30,3 +30,7 @@ export async function getRanking(pool) {
   );
   return res.rows;
 }
+
+export async function deleteBalance(userId, pool) {
+  await pool.query("DELETE FROM balances WHERE userId = $1", [userId]);
+}

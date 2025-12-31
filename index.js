@@ -11,6 +11,7 @@ import {
 } from "discord.js";
 import pkg from "pg";
 import { startScheduler } from "./utils/scheduler.js";
+import { deleteBalance } from "./utils/balance.js";
 
 const { Pool } = pkg;
 
@@ -152,5 +153,21 @@ client.on("messageCreate", async (message) => {
     }
   } catch (err) {
     console.error("❌ Erreur nettoyage:", err.message);
+  }
+});
+
+// ---------------------------
+// messageCreate handler
+// ---------------------------
+
+client.on("guildMemberRemove", async (member) => {
+  try {
+    await deleteBalance(member.id, pool);
+    console.log(`🧹 Balance supprimée pour ${member.user?.tag || member.id}`);
+  } catch (err) {
+    console.error(
+      `❌ Erreur suppression balance (${member.id}) :`,
+      err.message
+    );
   }
 });

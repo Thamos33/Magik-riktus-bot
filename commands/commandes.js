@@ -15,11 +15,11 @@ export async function execute(interaction) {
 🔹 /classementgeneral : classement complet
 🔹 /send : envoyer une image pour un événement
 🔹 /msgdate : programmer un message a envoyer a une date donnée
-🔹 /resultat : voir les soumissions pour Fashion-Riktus\n
 🔸 Commandes admin :
 🔹 /addcoin @user montant
 🔹 /removecoin @user montant
 🔹 /kdo @user quantité
+🔹 /resultat : voir les soumissions pour Fashion-Riktus\n
 🔹 /fr-reset : réinitialiser l'événement Fashion-Riktus`
     )
     .setColor("#165416");
