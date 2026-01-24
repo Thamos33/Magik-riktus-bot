@@ -3,7 +3,7 @@ import { getRanking, getBalance } from "../utils/balance.js";
 
 export const data = new SlashCommandBuilder()
   .setName("classementgeneral")
-  .setDescription("Affiche le classement complet des Magik-Coins🪙");
+  .setDescription("Affiche le classement complet des Magik-Coins 🪙");
 
 export async function execute(interaction, pool) {
   const ranking = await getRanking(pool);
