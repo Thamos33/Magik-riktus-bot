@@ -5,6 +5,7 @@ import {
   GatewayIntentBits,
   Collection,
   Partials,
+  EmbedBuilder,
   MessageType,
   REST,
   Routes,
@@ -159,9 +160,6 @@ client.on("messageCreate", async (message) => {
 // ---------------------------
 // Guildeux qui part
 // ---------------------------
-
-const { EmbedBuilder } = require("discord.js");
-
 client.on("guildMemberRemove", async (member) => {
   try {
     // --- Suppression balance ---
