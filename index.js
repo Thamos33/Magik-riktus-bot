@@ -157,13 +157,28 @@ client.on("messageCreate", async (message) => {
 });
 
 // ---------------------------
-// messageCreate handler
+// Guildeux qui part
 // ---------------------------
 
 client.on("guildMemberRemove", async (member) => {
   try {
+    // --- Suppression balance ---
     await deleteBalance(member.id, pool);
     console.log(`🧹 Balance supprimée pour ${member.user?.tag || member.id}`);
+
+    // --- Message de départ ---
+    const channel = await member.guild.channels.fetch("1195801619070210058");
+
+    if (!channel) return;
+
+    const username = member.user.tag; // pseudo Discord global
+    const nickname = member.nickname; // pseudo serveur
+    const message = nickname
+      ? `👋 **${username}** a quitté le serveur (pseudo serveur : **${nickname}**)`
+      : `👋 **${username}** a quitté le serveur`;
+
+    await channel.send(message);
+
   } catch (err) {
     console.error(
       `❌ Erreur suppression balance (${member.id}) :`,
@@ -171,3 +186,4 @@ client.on("guildMemberRemove", async (member) => {
     );
   }
 });
+
