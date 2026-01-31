@@ -160,24 +160,47 @@ client.on("messageCreate", async (message) => {
 // Guildeux qui part
 // ---------------------------
 
+const { EmbedBuilder } = require("discord.js");
+
 client.on("guildMemberRemove", async (member) => {
   try {
     // --- Suppression balance ---
     await deleteBalance(member.id, pool);
     console.log(`🧹 Balance supprimée pour ${member.user?.tag || member.id}`);
 
-    // --- Message de départ ---
+    // --- Channel ---
     const channel = await member.guild.channels.fetch("1195801619070210058");
-
     if (!channel) return;
 
-    const username = member.user.tag; // pseudo Discord global
-    const nickname = member.nickname; // pseudo serveur
-    const message = nickname
-      ? `👋 **${username}** a quitté le serveur (pseudo serveur : **${nickname}**)`
-      : `👋 **${username}** a quitté le serveur`;
+    const username = member.user.tag;
+    const nickname = member.nickname || "Aucun";
+    const avatar = member.user.displayAvatarURL({ dynamic: true });
 
-    await channel.send(message);
+    // --- Date arrivée ---
+    const joinedTimestamp = member.joinedAt
+      ? Math.floor(member.joinedAt.getTime() / 1000)
+      : null;
+
+    // --- Embed ---
+    const embed = new EmbedBuilder()
+      .setColor("#ff4d4d")
+      .setTitle("👋 Membre parti")
+      .setThumbnail(avatar)
+      .addFields(
+        { name: "Pseudo Discord", value: username, inline: true },
+        { name: "Pseudo serveur", value: nickname, inline: true },
+        {
+          name: "Arrivé le",
+          value: joinedTimestamp
+            ? `<t:${joinedTimestamp}:F>`
+            : "Inconnu",
+          inline: false,
+        }
+      )
+      .setFooter({ text: `ID : ${member.id}` })
+      .setTimestamp();
+
+    await channel.send({ embeds: [embed] });
 
   } catch (err) {
     console.error(
@@ -186,4 +209,3 @@ client.on("guildMemberRemove", async (member) => {
     );
   }
 });
-
