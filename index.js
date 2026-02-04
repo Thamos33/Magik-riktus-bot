@@ -76,7 +76,6 @@ for (const file of commandFiles) {
 
 async function createTables() {
   try {
-    // Table pour l'énigme unique
     await pool.query(`
       CREATE TABLE IF NOT EXISTS enigmes (
         id SERIAL PRIMARY KEY,
@@ -89,12 +88,11 @@ async function createTables() {
     console.log('✅ Table "enigmes" créée ou déjà existante');
   } catch (err) {
     console.error('❌ Erreur lors de la création de la table:', err);
-  } finally {
-    await pool.end();
   }
 }
 
-createTables();
+// Appel au démarrage du bot
+await createTables(); // PAS de pool.end() ici, le pool reste ouvert pour le reste du bot
 
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 const commandsData = client.commands.map((cmd) => cmd.data.toJSON());
