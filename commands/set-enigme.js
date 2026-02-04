@@ -19,8 +19,7 @@ export const data = new SlashCommandBuilder()
   );
 
 export async function execute(interaction, client, pool) {
-  const member = await interaction.member.roles.cache.has(process.env.ADMINID);
-  if (!member.roles.cache.some((r) => r.name.toLowerCase() === 'admin')) {
+  if (!interaction.member.roles.cache.has(process.env.ADMINID)) {
     return interaction.reply({
       content: '❌ Vous n’avez pas la permission.',
       ephemeral: true,
