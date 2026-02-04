@@ -15,5 +15,7 @@ export async function execute(interaction, pool) {
     });
   }
 
-  return interaction.reply({ content: `🧩 Énigme : ${enigme.question}` });
+  return interaction.reply({
+    content: `🧩 Énigme : ${enigme.question}\n\nPour tenter votre chance, utilisez la commande /solution !\n\nSi vous voulez que je répète la question, ça sera avec /push-enigme`,
+  });
 }
