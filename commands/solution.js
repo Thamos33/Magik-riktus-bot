@@ -26,13 +26,16 @@ export async function execute(interaction, pool) {
 
   if (userAnswer === correctAnswer) {
     await deleteEnigme(pool);
+
+    const member = await interaction.guild.members.fetch(interaction.user.id);
+    var pseudoServeur = member.displayName;
+
     return interaction.reply({
-      content: `🎉 Félicitations ${interaction.user.username} ! La réponse était bien : ${enigme.reponse}`,
+      content: `🎉 Félicitations ${pseudoServeur} ! La réponse était bien : ${enigme.reponse}`,
     });
   } else {
     return interaction.reply({
-      content: '❌ Mauvaise réponse, essayez encore !',
-      ephemeral: true,
+      content: `❌ Mauvaise réponse ${pseudoServeur}, essayez encore !`,
     });
   }
 }
