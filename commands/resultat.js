@@ -1,10 +1,9 @@
-import { SlashCommandBuilder } from "discord.js";
-import { getSubmissions } from "../utils/submissions.js";
-import fs from "fs/promises";
+import { SlashCommandBuilder } from 'discord.js';
+import { getSubmissions } from '../utils/submissions.js';
 
 export const data = new SlashCommandBuilder()
-  .setName("resultat")
-  .setDescription("Affiche les soumissions des participants (admin)");
+  .setName('resultat')
+  .setDescription('Affiche les soumissions des participants (admin)');
 
 export async function execute(interaction, pool) {
   if (!interaction.member.roles.cache.has(process.env.ADMINID))
@@ -15,7 +14,7 @@ export async function execute(interaction, pool) {
 
   const submissions = await getSubmissions(pool);
   if (!submissions.length)
-    return interaction.reply("⚠️ Aucune image enregistrée.");
+    return interaction.reply('⚠️ Aucune image enregistrée.');
 
   for (const sub of submissions) {
     try {
@@ -24,13 +23,13 @@ export async function execute(interaction, pool) {
       });
     } catch {
       await interaction.channel.send(
-        `⚠️ Impossible d’envoyer le skin #${sub.id}`
+        `⚠️ Impossible d’envoyer le skin #${sub.id}`,
       );
     }
   }
 
   await interaction.reply({
-    content: "✅ Tous les résultats envoyés.",
+    content: '✅ Tous les résultats envoyés.',
     ephemeral: true,
   });
 }

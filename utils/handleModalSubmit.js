@@ -1,6 +1,6 @@
 // utils/handleModalSubmit.js
-import { v2 as cloudinary } from "cloudinary";
-import { scheduleMessage } from "./auto-send.js";
+import { v2 as cloudinary } from 'cloudinary';
+import { scheduleMessage } from './auto-send.js';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -9,14 +9,14 @@ cloudinary.config({
 });
 
 export async function handleModalSubmit(interaction, pool) {
-  if (!interaction.customId.startsWith("msgdateModal")) return;
+  if (!interaction.customId.startsWith('msgdateModal')) return;
 
-  const [_, encoded] = interaction.customId.split("|");
+  const [_, encoded] = interaction.customId.split('|');
   const { channelId, date, attachment } = JSON.parse(
-    Buffer.from(encoded, "base64").toString("utf-8")
+    Buffer.from(encoded, 'base64').toString('utf-8'),
   );
 
-  const messageContent = interaction.fields.getTextInputValue("messageInput");
+  const messageContent = interaction.fields.getTextInputValue('messageInput');
 
   let fileUrl = null;
   let publicId = null;
@@ -24,14 +24,14 @@ export async function handleModalSubmit(interaction, pool) {
   if (attachment) {
     try {
       const upload = await cloudinary.uploader.upload(attachment, {
-        folder: "discord_screens",
+        folder: 'discord_screens',
         public_id: `${interaction.user.id}_${Date.now()}`,
         overwrite: true,
       });
       fileUrl = upload.secure_url;
       publicId = upload.public_id;
     } catch (err) {
-      console.error("Erreur Cloudinary :", err);
+      console.error('Erreur Cloudinary :', err);
     }
   }
 
@@ -41,7 +41,7 @@ export async function handleModalSubmit(interaction, pool) {
     date,
     fileUrl,
     publicId,
-    pool
+    pool,
   );
 
   await interaction.reply({

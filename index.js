@@ -1,18 +1,18 @@
-import fs from "fs";
-import path from "path";
 import {
   Client,
-  GatewayIntentBits,
   Collection,
-  Partials,
   EmbedBuilder,
+  GatewayIntentBits,
   MessageType,
+  Partials,
   REST,
   Routes,
-} from "discord.js";
-import pkg from "pg";
-import { startScheduler } from "./utils/scheduler.js";
-import { deleteBalance } from "./utils/balance.js";
+} from 'discord.js';
+import fs from 'fs';
+import path from 'path';
+import pkg from 'pg';
+import { deleteBalance } from './utils/balance.js';
+import { startScheduler } from './utils/scheduler.js';
 
 const { Pool } = pkg;
 
@@ -50,20 +50,20 @@ const pool = new Pool({
 // ---------------------------
 // Channels où les messages sont filtrés
 const AUTO_CLEAN_CHANNELS_IMG = [
-  "1350937297142419558", // salon "screens"
-  "1360338547827282262", // salon "Magik-Rusher"
+  '1350937297142419558', // salon "screens"
+  '1360338547827282262', // salon "Magik-Rusher"
 ];
 
-const COMMAND_PREFIX = "/";
+const COMMAND_PREFIX = '/';
 
 // ---------------------------
 // Charger les commandes
 // ---------------------------
 client.commands = new Collection();
-const commandsPath = path.join(process.cwd(), "commands");
+const commandsPath = path.join(process.cwd(), 'commands');
 const commandFiles = fs
   .readdirSync(commandsPath)
-  .filter((f) => f.endsWith(".js"));
+  .filter((f) => f.endsWith('.js'));
 
 for (const file of commandFiles) {
   const filePath = path.join(commandsPath, file);
@@ -74,23 +74,23 @@ for (const file of commandFiles) {
   });
 }
 
-const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);
+const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 const commandsData = client.commands.map((cmd) => cmd.data.toJSON());
 console.log(
-  "Commandes détectées :",
-  commandsData.map((c) => c.name)
+  'Commandes détectées :',
+  commandsData.map((c) => c.name),
 );
 
 try {
-  console.log("🔄 Enregistrement des commandes slash...");
+  console.log('🔄 Enregistrement des commandes slash...');
   await rest.put(
     Routes.applicationGuildCommands(
       process.env.CLIENT_ID,
-      process.env.GUILD_ID
+      process.env.GUILD_ID,
     ),
-    { body: commandsData }
+    { body: commandsData },
   );
-  console.log("✅ Commandes enregistrées avec succès !");
+  console.log('✅ Commandes enregistrées avec succès !');
 } catch (err) {
   console.error("❌ Erreur lors de l'enregistrement :", err);
 }
@@ -98,16 +98,16 @@ try {
 // ---------------------------
 // Charger les événements
 // ---------------------------
-import interactionCreate from "./events/interactionCreate.js";
+import interactionCreate from './events/interactionCreate.js';
 
 client.on(interactionCreate.name, (...args) =>
-  interactionCreate.execute(...args, client, pool)
+  interactionCreate.execute(...args, client, pool),
 );
 
 // ---------------------------
 // Événement ready
 // ---------------------------
-client.once("ready", () => {
+client.once('ready', () => {
   console.log(`✅ Connecté en tant que ${client.user.tag}`);
   startScheduler(client, pool); // Démarrage du cron pour les messages programmés
 });
@@ -121,7 +121,7 @@ client.login(process.env.TOKEN);
 // messageCreate handler
 // ---------------------------
 
-client.on("messageCreate", async (message) => {
+client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
   if (!AUTO_CLEAN_CHANNELS_IMG.includes(message.channel.id)) return;
@@ -140,70 +140,66 @@ client.on("messageCreate", async (message) => {
 
     const hasImage = message.attachments.some(
       (a) =>
-        a.contentType?.startsWith("image/") ||
-        /\.(png|jpe?g|gif|webp)$/i.test(a.name ?? "")
+        a.contentType?.startsWith('image/') ||
+        /\.(png|jpe?g|gif|webp)$/i.test(a.name ?? ''),
     );
 
     if (!hasImage) {
       await message.delete().catch(() => {});
       await message.author
         .send(
-          `👋 Salut ${message.author.username}, ton message dans **#${message.channel.name}** a été supprimé car il ne contenait pas d’image ou n'a pas été envoyé dans un fil.`
+          `👋 Salut ${message.author.username}, ton message dans **#${message.channel.name}** a été supprimé car il ne contenait pas d’image ou n'a pas été envoyé dans un fil.`,
         )
         .catch(() => {});
     }
   } catch (err) {
-    console.error("❌ Erreur nettoyage:", err.message);
+    console.error('❌ Erreur nettoyage:', err.message);
   }
 });
 
 // ---------------------------
 // Guildeux qui part
 // ---------------------------
-client.on("guildMemberRemove", async (member) => {
+client.on('guildMemberRemove', async (member) => {
   try {
     // --- Suppression balance ---
     await deleteBalance(member.id, pool);
     console.log(`🧹 Balance supprimée pour ${member.user?.tag || member.id}`);
 
     // --- Channel ---
-    const channel = await member.guild.channels.fetch("1195801619070210058");
+    const channel = await member.guild.channels.fetch('1195801619070210058');
     if (!channel) return;
 
     const username = member.user.tag;
-    const nickname = member.nickname || "Aucun";
+    const serverName = member.displayName; // pseudo serveur + fallback automatique
     const avatar = member.user.displayAvatarURL({ dynamic: true });
 
-    // --- Date arrivée ---
     const joinedTimestamp = member.joinedAt
       ? Math.floor(member.joinedAt.getTime() / 1000)
       : null;
 
     // --- Embed ---
     const embed = new EmbedBuilder()
-      .setColor("#ff4d4d")
-      .setTitle("👋 Membre parti")
+      .setColor('#ff4d4d')
+      .setTitle('👋 Membre parti')
       .setThumbnail(avatar)
       .addFields(
-        { name: "Pseudo Discord", value: username, inline: true },
-        { name: "Pseudo serveur", value: nickname, inline: true },
+        { name: 'Pseudo Discord', value: username, inline: true },
+        { name: 'Pseudo serveur', value: serverName, inline: true },
         {
-          name: "Arrivé le",
-          value: joinedTimestamp
-            ? `<t:${joinedTimestamp}:F>`
-            : "Inconnu",
+          name: 'Arrivé le',
+          value: joinedTimestamp ? `<t:${joinedTimestamp}:F>` : 'Inconnu',
           inline: false,
-        }
+        },
       )
       .setFooter({ text: `ID : ${member.id}` })
       .setTimestamp();
 
     await channel.send({ embeds: [embed] });
-
   } catch (err) {
     console.error(
       `❌ Erreur suppression balance (${member.id}) :`,
-      err.message
+      err.message,
     );
   }
 });

@@ -1,22 +1,22 @@
-import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
-import { getRanking, getBalance } from "../utils/balance.js";
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import { getBalance, getRanking } from '../utils/balance.js';
 
 export const data = new SlashCommandBuilder()
-  .setName("classement")
-  .setDescription("Affiche le top 10 des Magik-Coins🪙");
+  .setName('classement')
+  .setDescription('Affiche le top 10 des Magik-Coins🪙');
 
 export async function execute(interaction, pool) {
   const ranking = await getRanking(pool);
   const nonZero = ranking.filter((r) => r.balance !== 0);
 
   if (!nonZero.length)
-    return interaction.reply("Personne n’a encore de monnaie !");
+    return interaction.reply('Personne n’a encore de monnaie !');
 
   const top10 = nonZero.slice(0, 10);
   const myBalance = await getBalance(interaction.user.id, pool);
   const myIndex = nonZero.findIndex((r) => r.userid === interaction.user.id);
 
-  let msg = "";
+  let msg = '';
   if (myBalance > 0 && myIndex !== -1) {
     msg += `**Ta place :** ${
       myIndex + 1
@@ -25,7 +25,7 @@ export async function execute(interaction, pool) {
     msg += "**Ta place :** Vous n'avez pas encore de Magik-Coins🪙.\n\n";
   }
 
-  msg += "**Top 10 :**\n";
+  msg += '**Top 10 :**\n';
   top10.forEach((row, index) => {
     msg += `**${index + 1}.** <@${row.userid}> — **${
       row.balance
@@ -33,9 +33,9 @@ export async function execute(interaction, pool) {
   });
 
   const embed = new EmbedBuilder()
-    .setTitle("🏆 Classement 🏆")
+    .setTitle('🏆 Classement 🏆')
     .setDescription(msg)
-    .setColor("#FFD700");
+    .setColor('#FFD700');
 
   await interaction.reply({ embeds: [embed] });
 }

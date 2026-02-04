@@ -1,15 +1,15 @@
-import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
-import { getRanking, getBalance } from "../utils/balance.js";
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import { getRanking } from '../utils/balance.js';
 
 export const data = new SlashCommandBuilder()
-  .setName("classementgeneral")
-  .setDescription("Affiche le classement complet des Magik-Coins 🪙");
+  .setName('classementgeneral')
+  .setDescription('Affiche le classement complet des Magik-Coins 🪙');
 
 export async function execute(interaction, pool) {
   const ranking = await getRanking(pool);
   const nonZero = ranking.filter((r) => r.balance !== 0);
   if (!nonZero.length)
-    return interaction.reply("Personne n’a encore de monnaie !");
+    return interaction.reply('Personne n’a encore de monnaie !');
 
   function chunkArray(arr, size) {
     const out = [];
@@ -21,7 +21,7 @@ export async function execute(interaction, pool) {
 
   for (let c = 0; c < chunks.length; c++) {
     const page = chunks[c];
-    let msg = "";
+    let msg = '';
     let membersById = new Map();
     if (interaction.guild) {
       try {
@@ -43,10 +43,10 @@ export async function execute(interaction, pool) {
 
     const embed = new EmbedBuilder()
       .setTitle(
-        "🏆 Classement 🏆" + (chunks.length > 1 ? ` (page ${c + 1})` : "")
+        '🏆 Classement 🏆' + (chunks.length > 1 ? ` (page ${c + 1})` : ''),
       )
       .setDescription(msg)
-      .setColor("#FFD700");
+      .setColor('#FFD700');
 
     if (c === 0) await interaction.reply({ embeds: [embed] });
     else await interaction.followUp({ embeds: [embed] });

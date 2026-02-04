@@ -1,12 +1,12 @@
-import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 
 export const data = new SlashCommandBuilder()
-  .setName("commandes")
-  .setDescription("Liste toutes les commandes du bot");
+  .setName('commandes')
+  .setDescription('Liste toutes les commandes du bot');
 
 export async function execute(interaction) {
   const embed = new EmbedBuilder()
-    .setTitle("🤖 Les commandes 🤖")
+    .setTitle('🤖 Les commandes 🤖')
     .setDescription(
       `🔹 /magik-rusher : règles de l'événement Magik-Rusher
 🔹 /fashion-riktus : règles du Fashion-Riktus
@@ -20,9 +20,9 @@ export async function execute(interaction) {
 🔹 /removecoin @user montant
 🔹 /kdo @user quantité
 🔹 /resultat : voir les soumissions pour Fashion-Riktus\n
-🔹 /fr-reset : réinitialiser l'événement Fashion-Riktus`
+🔹 /fr-reset : réinitialiser l'événement Fashion-Riktus`,
     )
-    .setColor("#165416");
+    .setColor('#165416');
 
   await interaction.reply({ embeds: [embed] });
 }

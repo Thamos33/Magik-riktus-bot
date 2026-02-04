@@ -1,11 +1,11 @@
+import { v2 as cloudinary } from 'cloudinary';
 import {
-  SlashCommandBuilder,
+  ActionRowBuilder,
   ModalBuilder,
+  SlashCommandBuilder,
   TextInputBuilder,
   TextInputStyle,
-  ActionRowBuilder,
-} from "discord.js";
-import { v2 as cloudinary } from "cloudinary";
+} from 'discord.js';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -14,33 +14,33 @@ cloudinary.config({
 });
 
 export const data = new SlashCommandBuilder()
-  .setName("msgdate")
+  .setName('msgdate')
   .setDescription(
-    "Programmer un message avec une date et une image optionnelle"
+    'Programmer un message avec une date et une image optionnelle',
   )
   .addChannelOption((option) =>
     option
-      .setName("channel")
-      .setDescription("Channel où envoyer le message")
-      .setRequired(true)
+      .setName('channel')
+      .setDescription('Channel où envoyer le message')
+      .setRequired(true),
   )
   .addRoleOption((option) =>
     option
-      .setName("role")
-      .setDescription("Rôle à mentionner dans le message")
-      .setRequired(false)
+      .setName('role')
+      .setDescription('Rôle à mentionner dans le message')
+      .setRequired(false),
   )
   .addAttachmentOption((option) =>
     option
-      .setName("image")
-      .setDescription("Image optionnelle à envoyer avec le message")
-      .setRequired(false)
+      .setName('image')
+      .setDescription('Image optionnelle à envoyer avec le message')
+      .setRequired(false),
   );
 
 export async function execute(interaction) {
-  const channel = interaction.options.getChannel("channel");
-  const attachment = interaction.options.getAttachment("image");
-  const role = interaction.options.getRole("role");
+  const channel = interaction.options.getChannel('channel');
+  const attachment = interaction.options.getAttachment('image');
+  const role = interaction.options.getRole('role');
 
   // Gestion de l’image Cloudinary si fournie
   let fileUrl = null;
@@ -49,14 +49,14 @@ export async function execute(interaction) {
   if (attachment) {
     try {
       const upload = await cloudinary.uploader.upload(attachment.url, {
-        folder: "discord_screens",
+        folder: 'discord_screens',
         public_id: `${interaction.user.id}_${Date.now()}`,
         overwrite: true,
       });
       fileUrl = upload.secure_url;
       publicId = upload.public_id;
     } catch (err) {
-      console.error("Erreur Cloudinary :", err);
+      console.error('Erreur Cloudinary :', err);
     }
   }
 
@@ -71,25 +71,25 @@ export async function execute(interaction) {
 
   // Création de la modale
   const modal = new ModalBuilder()
-    .setCustomId("msgdate_modal")
-    .setTitle("Programmer un message");
+    .setCustomId('msgdate_modal')
+    .setTitle('Programmer un message');
 
   const messageInput = new TextInputBuilder()
-    .setCustomId("message_content")
-    .setLabel("Contenu du message")
+    .setCustomId('message_content')
+    .setLabel('Contenu du message')
     .setStyle(TextInputStyle.Paragraph)
-    .setPlaceholder("Texte Discord (titres, sauts de ligne, gras, etc.)")
+    .setPlaceholder('Texte Discord (titres, sauts de ligne, gras, etc.)')
     .setRequired(true);
 
   const dateInput = new TextInputBuilder()
-    .setCustomId("message_date")
-    .setLabel("Date d’envoi (YYYY-MM-DD)")
+    .setCustomId('message_date')
+    .setLabel('Date d’envoi (YYYY-MM-DD)')
     .setStyle(TextInputStyle.Short)
     .setRequired(true);
 
   modal.addComponents(
     new ActionRowBuilder().addComponents(messageInput),
-    new ActionRowBuilder().addComponents(dateInput)
+    new ActionRowBuilder().addComponents(dateInput),
   );
 
   await interaction.showModal(modal);

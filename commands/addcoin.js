@@ -1,20 +1,20 @@
-import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
-import { addBalance, getBalance } from "../utils/balance.js";
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import { addBalance, getBalance } from '../utils/balance.js';
 
 export const data = new SlashCommandBuilder()
-  .setName("addcoin")
-  .setDescription("Ajoute des Magik-Coins 🪙 à un utilisateur (admin)")
+  .setName('addcoin')
+  .setDescription('Ajoute des Magik-Coins 🪙 à un utilisateur (admin)')
   .addUserOption((option) =>
     option
-      .setName("utilisateur")
+      .setName('utilisateur')
       .setDescription("L'utilisateur qui recevra les Magik-Coins 🪙")
-      .setRequired(true)
+      .setRequired(true),
   )
   .addIntegerOption((option) =>
     option
-      .setName("montant")
-      .setDescription("Nombre de Magik-Coins 🪙 à ajouter")
-      .setRequired(true)
+      .setName('montant')
+      .setDescription('Nombre de Magik-Coins 🪙 à ajouter')
+      .setRequired(true),
   );
 
 export async function execute(interaction, pool) {
@@ -24,8 +24,8 @@ export async function execute(interaction, pool) {
       ephemeral: true,
     });
 
-  const target = interaction.options.getUser("utilisateur");
-  const amount = interaction.options.getInteger("montant");
+  const target = interaction.options.getUser('utilisateur');
+  const amount = interaction.options.getInteger('montant');
 
   await addBalance(target.id, amount, pool);
   const balance = await getBalance(target.id, pool);
@@ -33,9 +33,9 @@ export async function execute(interaction, pool) {
   const embed = new EmbedBuilder()
     .setTitle(`Gain Magik-Coins🪙`)
     .setDescription(
-      `**${amount}** Magik-Coins🪙 ajoutés à <@${target.id}>.\nSolde : **${balance}** Magik-Coins🪙`
+      `**${amount}** Magik-Coins🪙 ajoutés à <@${target.id}>.\nSolde : **${balance}** Magik-Coins🪙`,
     )
-    .setColor("#5CA25F");
+    .setColor('#5CA25F');
 
   await interaction.reply({ embeds: [embed] });
 }
