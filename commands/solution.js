@@ -18,24 +18,29 @@ export async function execute(interaction, pool) {
     });
   }
 
-  const userAnswer = interaction.options
-    .getString('reponse')
-    .trim()
-    .toLowerCase();
-  const correctAnswer = enigme.reponse.trim().toLowerCase();
+  function normalizeString(str) {
+    return str
+      .normalize('NFD') // sépare les lettres et les accents
+      .replace(/[\u0300-\u036f]/g, '') // supprime les accents
+      .toLowerCase() // tout en minuscules
+      .trim(); // supprime les espaces début/fin
+  }
+
+  const userAnswer = normalizeString(interaction.options.getString('reponse'));
+  const correctAnswer = normalizeString(enigme.reponse);
 
   if (userAnswer === correctAnswer) {
     await deleteEnigme(pool);
 
-    const member = await interaction.guild.members.fetch(interaction.user.id);
-    var pseudoServeur = member.displayName;
+    var pseudoServeur =
+      interaction.member?.displayName || interaction.user.username;
 
     return interaction.reply({
       content: `🎉 Félicitations ${pseudoServeur} ! La réponse était bien : ${enigme.reponse}`,
     });
   } else {
     return interaction.reply({
-      content: `❌ Mauvaise réponse ${pseudoServeur}, essayez encore !`,
+      content: `❌ Mauvaise réponse ${pseudoServeur}, essaye encore !`,
     });
   }
 }
