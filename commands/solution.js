@@ -29,11 +29,11 @@ export async function execute(interaction, pool) {
   const userAnswer = normalizeString(interaction.options.getString('reponse'));
   const correctAnswer = normalizeString(enigme.reponse);
 
+  var pseudoServeur =
+    interaction.member?.displayName || interaction.user.username;
+
   if (userAnswer === correctAnswer) {
     await deleteEnigme(pool);
-
-    var pseudoServeur =
-      interaction.member?.displayName || interaction.user.username;
 
     return interaction.reply({
       content: `🎉 Félicitations ${pseudoServeur} ! La réponse était bien : ${enigme.reponse}`,
