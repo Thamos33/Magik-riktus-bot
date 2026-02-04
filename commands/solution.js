@@ -9,7 +9,7 @@ export const data = new SlashCommandBuilder()
     option.setName('reponse').setDescription('Votre réponse').setRequired(true),
   );
 
-export async function execute(interaction, client, pool) {
+export async function execute(interaction, pool) {
   const enigme = await getActiveEnigme(pool);
   if (!enigme) {
     return interaction.reply({

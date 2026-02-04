@@ -6,7 +6,7 @@ export const data = new SlashCommandBuilder()
   .setName('push-enigme')
   .setDescription('Publier l’énigme actuelle dans ce salon');
 
-export async function execute(interaction, client, pool) {
+export async function execute(interaction, pool) {
   const enigme = await getActiveEnigme(pool);
   if (!enigme) {
     return interaction.reply({
