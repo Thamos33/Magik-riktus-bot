@@ -74,6 +74,28 @@ for (const file of commandFiles) {
   });
 }
 
+async function createTables() {
+  try {
+    // Table pour l'énigme unique
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS enigmes (
+        id SERIAL PRIMARY KEY,
+        question TEXT NOT NULL,
+        reponse TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+
+    console.log('✅ Table "enigmes" créée ou déjà existante');
+  } catch (err) {
+    console.error('❌ Erreur lors de la création de la table:', err);
+  } finally {
+    await pool.end();
+  }
+}
+
+createTables();
+
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 const commandsData = client.commands.map((cmd) => cmd.data.toJSON());
 console.log(
