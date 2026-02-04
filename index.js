@@ -74,26 +74,6 @@ for (const file of commandFiles) {
   });
 }
 
-async function createTables() {
-  try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS enigmes (
-        id SERIAL PRIMARY KEY,
-        question TEXT NOT NULL,
-        reponse TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT NOW()
-      );
-    `);
-
-    console.log('✅ Table "enigmes" créée ou déjà existante');
-  } catch (err) {
-    console.error('❌ Erreur lors de la création de la table:', err);
-  }
-}
-
-// Appel au démarrage du bot
-await createTables(); // PAS de pool.end() ici, le pool reste ouvert pour le reste du bot
-
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 const commandsData = client.commands.map((cmd) => cmd.data.toJSON());
 console.log(

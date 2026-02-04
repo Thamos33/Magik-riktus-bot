@@ -1,4 +1,6 @@
+// commands/solution.js
 import { SlashCommandBuilder } from 'discord.js';
+import { deleteEnigme, getActiveEnigme } from '../utils/enigme.js';
 
 export const data = new SlashCommandBuilder()
   .setName('solution')
@@ -8,25 +10,24 @@ export const data = new SlashCommandBuilder()
   );
 
 export async function execute(interaction, client, pool) {
-  const res = await pool.query('SELECT * FROM enigmes LIMIT 1');
-  if (res.rows.length === 0) {
+  const enigme = await getActiveEnigme(pool);
+  if (!enigme) {
     return interaction.reply({
       content: '❌ Il n’y a pas d’énigme en cours.',
       ephemeral: true,
     });
   }
 
-  const correctAnswer = res.rows[0].reponse.trim().toLowerCase();
   const userAnswer = interaction.options
     .getString('reponse')
     .trim()
     .toLowerCase();
+  const correctAnswer = enigme.reponse.trim().toLowerCase();
 
   if (userAnswer === correctAnswer) {
-    // Supprimer l'énigme
-    await pool.query('DELETE FROM enigmes WHERE id = $1', [res.rows[0].id]);
+    await deleteEnigme(pool);
     return interaction.reply({
-      content: `🎉 Félicitations ${interaction.user.username} ! La réponse était bien : ${res.rows[0].reponse}`,
+      content: `🎉 Félicitations ${interaction.user.username} ! La réponse était bien : ${enigme.reponse}`,
     });
   } else {
     return interaction.reply({

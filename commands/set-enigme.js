@@ -1,4 +1,6 @@
+// commands/setEnigme.js
 import { SlashCommandBuilder } from 'discord.js';
+import { createEnigme } from '../utils/enigme.js';
 
 export const data = new SlashCommandBuilder()
   .setName('set-enigme')
@@ -17,19 +19,10 @@ export const data = new SlashCommandBuilder()
   );
 
 export async function execute(interaction, client, pool) {
-  // Vérification rôle admin
-  if (!interaction.member.roles.cache.has(process.env.ADMINID)) {
+  const member = await interaction.member.roles.cache.has(process.env.ADMINID);
+  if (!member.roles.cache.some((r) => r.name.toLowerCase() === 'admin')) {
     return interaction.reply({
       content: '❌ Vous n’avez pas la permission.',
-      ephemeral: true,
-    });
-  }
-
-  // Vérifier si une énigme existe déjà
-  const res = await pool.query('SELECT * FROM enigmes LIMIT 1');
-  if (res.rows.length > 0) {
-    return interaction.reply({
-      content: '❌ Une énigme est déjà en cours.',
       ephemeral: true,
     });
   }
@@ -37,12 +30,13 @@ export async function execute(interaction, client, pool) {
   const question = interaction.options.getString('question');
   const reponse = interaction.options.getString('reponse');
 
-  await pool.query('INSERT INTO enigmes(question, reponse) VALUES($1, $2)', [
-    question,
-    reponse,
-  ]);
-  return interaction.reply({
-    content: '✅ Énigme enregistrée !',
-    ephemeral: true,
-  });
+  try {
+    await createEnigme(question, reponse, pool);
+    return interaction.reply({
+      content: '✅ Énigme enregistrée !',
+      ephemeral: true,
+    });
+  } catch (err) {
+    return interaction.reply({ content: `❌ ${err.message}`, ephemeral: true });
+  }
 }
