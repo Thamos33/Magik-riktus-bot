@@ -3,7 +3,7 @@ import cron from 'node-cron';
 
 export function startScheduler(client, pool) {
   cron.schedule(
-    '0 0 * * *',
+    '0 * * * *',
     async () => {
       const today = new Date()
         .toLocaleDateString('fr-FR', {
