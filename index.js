@@ -9,10 +9,24 @@ import {
   Routes,
 } from 'discord.js';
 import fs from 'fs';
+import http from 'http'; // <--- Ajouté pour le serveur HTTP
 import path from 'path';
 import pkg from 'pg';
 import { deleteBalance } from './utils/balance.js';
 import { startScheduler } from './utils/scheduler.js';
+
+// ---------------------------
+// Serveur HTTP pour Render (Health Check)
+// ---------------------------
+const PORT = process.env.PORT || 3000;
+http
+  .createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Bot Discord OK');
+  })
+  .listen(PORT, () => {
+    console.log(`🌐 Serveur Web en écoute sur le port ${PORT}`);
+  });
 
 const { Pool } = pkg;
 
