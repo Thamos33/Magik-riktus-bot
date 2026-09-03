@@ -4,19 +4,20 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "lint": "eslint .",
     "clear": "node clearGlobalCommands.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Bot Discord ESM pour la guilde Magik Rusher",
   "dependencies": {
     "cloudinary": "^2.8.0",
     "discord.js": "^14.22.0",
+    "dotenv": "^16.6.1",
     "node-cron": "^4.2.1",
-    "pg": "^8.16.3",
-    "sqlite3": "^5.1.7"
+    "pg": "^8.16.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

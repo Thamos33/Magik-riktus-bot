@@ -1,9 +1,17 @@
-import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import {
+  EmbedBuilder,
+  PermissionFlagsBits,
+  SlashCommandBuilder,
+} from 'discord.js';
 import { addBalance, getBalance } from '../utils/balance.js';
 
+/**
+ * Configuration de la commande Slash /addcoin
+ */
 export const data = new SlashCommandBuilder()
   .setName('addcoin')
-  .setDescription('Ajoute des Magik-Coins 🪙 à un utilisateur (admin)')
+  .setDescription('Ajoute des Magik-Coins 🪙 à un utilisateur (Admin)')
+  .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
   .addUserOption((option) =>
     option
       .setName('utilisateur')
@@ -14,28 +22,52 @@ export const data = new SlashCommandBuilder()
     option
       .setName('montant')
       .setDescription('Nombre de Magik-Coins 🪙 à ajouter')
+      .setMinValue(1)
       .setRequired(true),
   );
 
+/**
+ * Exécute la commande /addcoin
+ *
+ * @param {import('discord.js').ChatInputCommandInteraction} interaction - L'interaction Discord
+ * @param {import('pg').Pool} pool - Le pool de connexion PostgreSQL
+ * @returns {Promise<void>}
+ */
 export async function execute(interaction, pool) {
-  if (!interaction.member.roles.cache.has(process.env.ADMINID))
+  // Vérification du rôle Administrateur via variable d'environnement
+  if (!interaction.member.roles.cache.has(process.env.ADMINID)) {
     return interaction.reply({
-      content: "🚫 Tu n'as pas la permission.",
-      ephemeral: true,
+      content: "🚫 Tu n'as pas la permission d'utiliser cette commande.",
+      flags: 64, // Remplace 'ephemeral: true' (obsolète dans v14.18+)
     });
+  }
 
   const target = interaction.options.getUser('utilisateur');
   const amount = interaction.options.getInteger('montant');
 
-  await addBalance(target.id, amount, pool);
-  const balance = await getBalance(target.id, pool);
+  // Accusé de réception différé pour éviter les timeouts
+  await interaction.deferReply();
 
-  const embed = new EmbedBuilder()
-    .setTitle(`Gain Magik-Coins🪙`)
-    .setDescription(
-      `**${amount}** Magik-Coins🪙 ajoutés à <@${target.id}>.\nSolde : **${balance}** Magik-Coins🪙`,
-    )
-    .setColor('#5CA25F');
+  try {
+    // Mise à jour de la base de données
+    await addBalance(target.id, amount, pool);
+    const newBalance = await getBalance(target.id, pool);
 
-  await interaction.reply({ embeds: [embed] });
+    // Envoi de la réponse enrichie
+    const embed = new EmbedBuilder()
+      .setTitle('Gain de Magik-Coins 🪙')
+      .setDescription(
+        `**${amount}** Magik-Coins 🪙 ont été ajoutés à ${target}.\n` +
+          `Nouveau solde : **${newBalance}** Magik-Coins 🪙`,
+      )
+      .setColor('#5CA25F')
+      .setTimestamp();
+
+    await interaction.editReply({ embeds: [embed] });
+  } catch (error) {
+    console.error('❌ Erreur lors de la commande addcoin :', error);
+    await interaction.editReply({
+      content: '❌ Une erreur est survenue lors de l’ajout des Magik-Coins.',
+    });
+  }
 }

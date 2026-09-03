@@ -1,17 +1,58 @@
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 
+/**
+ * Constante pour le nom de la monnaie
+ */
+const CURRENCY = 'Magik-Coins 🪙';
+
+/**
+ * Configuration de la commande Slash /fashion-riktus
+ */
 export const data = new SlashCommandBuilder()
   .setName('fashion-riktus')
-  .setDescription('Affiche les règles du Fashion-Riktus');
+  .setDescription('Affiche les règles et le fonctionnement du Fashion-Riktus');
 
+/**
+ * Exécute la commande /fashion-riktus
+ *
+ * @param {import('discord.js').ChatInputCommandInteraction} interaction - L'interaction Discord
+ * @returns {Promise<void>}
+ */
 export async function execute(interaction) {
-  const CURRENCY = 'Magik-Coins🪙';
-  const embed = new EmbedBuilder()
-    .setTitle('🌸 Fashion-Riktus 🌸')
-    .setDescription(
-      `Toutes les deux semaines, nous allons alterner entre une semaine pour envoyer vos créations, et une semaine de vote. Un thème sera donné et à respecter.\n\n🔸 Attribution des points :\n🔹 30 ${CURRENCY} pour le 1er.\n🔹 20 ${CURRENCY} pour le 2ème.\n🔹 10 ${CURRENCY} le 3ème.\n\n🔸 Fonctionnement\n🔹 Durant la 1ere semaine, avec la commande **/send**, en y ajoutant une image, dans le salon https://discord.com/channels/297322268961538048/1412175010935607347 Votre skin sera envoyé, et instantanément supprimé, pour garder la surprise et l'anonymat pour les votes.\n🔹 Le lundi suivant, pour la 2ème semaine, tous les skins seront affichés par le bot de guilde, il ne vous restera plus qu'à voter ! Pour cela, réagissez aux images qui vous plaisent avec un :thumbsup: . Vous pouvez voter pour plusieurs skins.\n🔹 Les skins sont à réaliser en jeu ou via des outils en ligne.\n🔹 Si vous envoyez deux fois un skin, le 2ème écrasera le 1er.\n🔹 Pour le respect de l'évènement on vous demandera de ne pas copier des skins déjà faits, si une triche a lieu, nous procéderons à des sanctions sur les participations.`,
-    )
-    .setColor('#b419a7');
+  await interaction.deferReply();
 
-  await interaction.reply({ embeds: [embed] });
+  try {
+    const rewardsText = [
+      `🥇 **1er place :** 30 ${CURRENCY}`,
+      `🥈 **2ème place :** 20 ${CURRENCY}`,
+      `🥉 **3ème place :** 10 ${CURRENCY}`,
+    ].join('\n');
+
+    const rulesText = [
+      '🔹 Toutes les deux semaines, nous alternons entre une semaine de soumission de vos créations et une semaine de vote autour d’un thème donné.',
+      `🔹 **Soumission :** Pendant la 1ère semaine, utilisez la commande **/send** avec une image dans le salon <#1412175010935607347>. Votre skin sera enregistré et votre message immédiatement masqué afin de garantir l'anonymat pour les votes.`,
+      '🔹 **Vote :** Le lundi suivant, tous les skins seront affichés anonymement par le bot. Réagissez avec un 👍 aux visuels qui vous plaisent (votes multiples autorisés).',
+      '🔹 **Règles :** Les skins sont à réaliser en jeu ou via un outil de skin. Si vous envoyez une seconde image, elle remplacera la précédente. Le plagiat est strictement interdit sous peine de disqualification.',
+    ].join('\n\n');
+
+    const embed = new EmbedBuilder()
+      .setTitle('🌸 Règlement du Fashion-Riktus 🌸')
+      .setDescription(
+        'Participez à notre concours de skin bimensuel et tentez de remporter des récompenses !',
+      )
+      .addFields(
+        { name: '🏆 Récompenses', value: rewardsText },
+        { name: '⚙️ Fonctionnement & Règles', value: rulesText },
+      )
+      .setColor('#B419A7')
+      .setTimestamp();
+
+    await interaction.editReply({ embeds: [embed] });
+  } catch (error) {
+    console.error('❌ Erreur lors de la commande fashion-riktus :', error);
+    await interaction.editReply({
+      content:
+        '❌ Une erreur est survenue lors de l’affichage du règlement du Fashion-Riktus.',
+    });
+  }
 }
