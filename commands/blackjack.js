@@ -26,80 +26,78 @@ function calculateScore(cards) {
   return score;
 }
 
-export default {
-  data: new SlashCommandBuilder()
-    .setName('blackjack')
-    .setDescription(
-      'Joue une partie de Blackjack et tente de doubler tes coins !',
-    )
-    .addIntegerOption((option) =>
-      option
-        .setName('mise')
-        .setDescription('Le montant de coins à miser')
-        .setRequired(true)
-        .setMinValue(1),
-    ),
+export const data = new SlashCommandBuilder()
+  .setName('blackjack')
+  .setDescription(
+    'Joue une partie de Blackjack et tente de doubler tes coins !',
+  )
+  .addIntegerOption((option) =>
+    option
+      .setName('mise')
+      .setDescription('Le montant de coins à miser')
+      .setRequired(true)
+      .setMinValue(1),
+  );
 
-  async execute(interaction, pool) {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+export async function execute(interaction, pool) {
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-    const betAmount = interaction.options.getInteger('mise');
-    const userBalance = await getBalance(interaction.user.id, pool);
+  const betAmount = interaction.options.getInteger('mise');
+  const userBalance = await getBalance(interaction.user.id, pool);
 
-    if (userBalance < betAmount) {
-      return interaction.editReply(
-        `❌ Solde insuffisant ! Tu as **${userBalance}** ${EMOJI_COIN} mais tu veux miser **${betAmount}** ${EMOJI_COIN}.`,
-      );
-    }
+  if (userBalance < betAmount) {
+    return interaction.editReply(
+      `❌ Solde insuffisant ! Tu as **${userBalance}** ${EMOJI_COIN} mais tu veux miser **${betAmount}** ${EMOJI_COIN}.`,
+    );
+  }
 
-    // Déduction de la mise
-    await removeBalance(interaction.user.id, betAmount, pool);
+  // Déduction de la mise
+  await removeBalance(interaction.user.id, betAmount, pool);
 
-    // Distribution initiale
-    const playerHand = [drawCard(), drawCard()];
-    const dealerHand = [drawCard(), drawCard()];
+  // Distribution initiale
+  const playerHand = [drawCard(), drawCard()];
+  const dealerHand = [drawCard(), drawCard()];
 
-    // Stockage de la partie en mémoire
-    interaction.client.tempData.set(`bj_${interaction.user.id}`, {
-      bet: betAmount,
-      playerHand,
-      dealerHand,
-    });
+  // Stockage de la partie en mémoire
+  interaction.client.tempData.set(`bj_${interaction.user.id}`, {
+    bet: betAmount,
+    playerHand,
+    dealerHand,
+  });
 
-    const playerScore = calculateScore(playerHand);
+  const playerScore = calculateScore(playerHand);
 
-    const embed = new EmbedBuilder()
-      .setTitle('🎰 Table de Blackjack')
-      .setColor('#2F3136')
-      .addFields(
-        {
-          name: '🃏 Tes cartes',
-          value: `${playerHand.join(' - ')} (Total : **${playerScore}**)`,
-          inline: true,
-        },
-        {
-          name: '🤖 Croupier',
-          value: `${dealerHand[0]} - ❓`,
-          inline: true,
-        },
-        {
-          name: '💰 Mise en jeu',
-          value: `**${betAmount}** ${EMOJI_COIN}`,
-          inline: false,
-        },
-      );
-
-    const buttons = new ActionRowBuilder().addComponents(
-      new ButtonBuilder()
-        .setCustomId('bj_hit')
-        .setLabel('Tirer une carte 🃏')
-        .setStyle(ButtonStyle.Primary),
-      new ButtonBuilder()
-        .setCustomId('bj_stand')
-        .setLabel('Rester 🛑')
-        .setStyle(ButtonStyle.Success),
+  const embed = new EmbedBuilder()
+    .setTitle('🎰 Table de Blackjack')
+    .setColor('#2F3136')
+    .addFields(
+      {
+        name: '🃏 Tes cartes',
+        value: `${playerHand.join(' - ')} (Total : **${playerScore}**)`,
+        inline: true,
+      },
+      {
+        name: '🤖 Croupier',
+        value: `${dealerHand[0]} - ❓`,
+        inline: true,
+      },
+      {
+        name: '💰 Mise en jeu',
+        value: `**${betAmount}** ${EMOJI_COIN}`,
+        inline: false,
+      },
     );
 
-    return interaction.editReply({ embeds: [embed], components: [buttons] });
-  },
-};
+  const buttons = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId('bj_hit')
+      .setLabel('Tirer une carte 🃏')
+      .setStyle(ButtonStyle.Primary),
+    new ButtonBuilder()
+      .setCustomId('bj_stand')
+      .setLabel('Rester 🛑')
+      .setStyle(ButtonStyle.Success),
+  );
+
+  return interaction.editReply({ embeds: [embed], components: [buttons] });
+}
