@@ -1,13 +1,6 @@
-import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  EmbedBuilder,
-  Events,
-  MessageFlags,
-} from 'discord.js';
+import { EmbedBuilder, Events, MessageFlags } from 'discord.js';
 import { scheduleMessage } from '../utils/auto-send.js';
-import { addBalance, getBalance, removeBalance } from '../utils/balance.js';
+import { addBalance } from '../utils/balance.js';
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const EMOJI_COIN = '<:magikcoin:1545124652383469719>';
@@ -32,7 +25,7 @@ export default {
   name: Events.InteractionCreate,
 
   async execute(interaction, client, pool) {
-    // --- 1. GESTION DES COMMANDES SLASH (Priorité absolue pour répondre sous 3s) ---
+    // --- 1. GESTION DES COMMANDES SLASH ---
     if (interaction.isChatInputCommand()) {
       const command = client.commands.get(interaction.commandName);
       if (!command) return;
@@ -69,7 +62,6 @@ export default {
 
     // --- 2. GESTION DES MODALES ---
     if (interaction.isModalSubmit()) {
-      // Modale /msgdate
       if (interaction.customId === 'msgdate_modal') {
         const content = interaction.fields.getTextInputValue('message_content');
         const date = interaction.fields
@@ -123,80 +115,6 @@ export default {
         }
         return;
       }
-
-      // Modale Blackjack
-      if (interaction.customId === 'blackjack_bet_modal') {
-        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-
-        const betAmount = parseInt(
-          interaction.fields.getTextInputValue('blackjack_bet_amount'),
-          10,
-        );
-
-        if (isNaN(betAmount) || betAmount <= 0) {
-          return interaction.editReply(
-            '❌ Veuillez entrer un montant valide supérieur à 0.',
-          );
-        }
-
-        const userBalance = await getBalance(interaction.user.id, pool);
-
-        if (userBalance < betAmount) {
-          return interaction.editReply(
-            `❌ Solde insuffisant ! Tu as **${userBalance}** ${EMOJI_COIN} mais tu veux miser **${betAmount}** ${EMOJI_COIN}.`,
-          );
-        }
-
-        await removeBalance(interaction.user.id, betAmount, pool);
-
-        const playerHand = [drawCard(), drawCard()];
-        const dealerHand = [drawCard(), drawCard()];
-
-        client.tempData.set(`bj_${interaction.user.id}`, {
-          bet: betAmount,
-          playerHand,
-          dealerHand,
-        });
-
-        const playerScore = calculateScore(playerHand);
-
-        const embed = new EmbedBuilder()
-          .setTitle('🎰 Table de Blackjack')
-          .setColor('#2F3136')
-          .addFields(
-            {
-              name: '🃏 Tes cartes',
-              value: `${playerHand.join(' - ')} (Total : **${playerScore}**)`,
-              inline: true,
-            },
-            {
-              name: '🤖 Croupier',
-              value: `${dealerHand[0]} - ❓`,
-              inline: true,
-            },
-            {
-              name: '💰 Mise en jeu',
-              value: `**${betAmount}** ${EMOJI_COIN}`,
-              inline: false,
-            },
-          );
-
-        const buttons = new ActionRowBuilder().addComponents(
-          new ButtonBuilder()
-            .setCustomId('bj_hit')
-            .setLabel('Tirer une carte 🃏')
-            .setStyle(ButtonStyle.Primary),
-          new ButtonBuilder()
-            .setCustomId('bj_stand')
-            .setLabel('Rester 🛑')
-            .setStyle(ButtonStyle.Success),
-        );
-
-        return interaction.editReply({
-          embeds: [embed],
-          components: [buttons],
-        });
-      }
       return;
     }
 
@@ -213,6 +131,7 @@ export default {
 
       await interaction.deferUpdate();
 
+      // Action: Tirer une carte
       if (interaction.customId === 'bj_hit') {
         game.playerHand.push(drawCard());
         const playerScore = calculateScore(game.playerHand);
@@ -253,7 +172,7 @@ export default {
             },
             {
               name: '🤖 Croupier',
-              value: `${dealerHand[0]} - ❓`,
+              value: `${game.dealerHand[0]} - ❓`,
               inline: true,
             },
             {
@@ -266,6 +185,7 @@ export default {
         return interaction.editReply({ embeds: [embed] });
       }
 
+      // Action: Rester
       if (interaction.customId === 'bj_stand') {
         client.tempData.delete(`bj_${interaction.user.id}`);
 
