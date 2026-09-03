@@ -12,7 +12,7 @@ const MEDALS = ['🥇', '🥈', '🥉'];
 export const data = new SlashCommandBuilder()
   .setName('classement')
   .setDescription(
-    'Affiche le top 10 des utilisateurs ayant le plus de <:magikcoin:1545124652383469719>',
+    'Affiche le top 10 des utilisateurs ayant le plus de <:magikcoin:1545128700985614336>',
   );
 
 /**
@@ -32,7 +32,7 @@ export async function execute(interaction, pool) {
     if (nonZeroRanking.length === 0) {
       return interaction.editReply({
         content:
-          'Personne ne possède de <:magikcoin:1545124652383469719> pour le moment !',
+          'Personne ne possède de <:magikcoin:1545128700985614336> pour le moment !',
       });
     }
 
@@ -49,11 +49,11 @@ export async function execute(interaction, pool) {
     // Affichage du rang de l'utilisateur qui lance la commande
     if (myBalance > 0 && myIndex !== -1) {
       descriptionLines.push(
-        `**Ta place :** ${myIndex + 1}ᵉ avec **${myBalance}** <:magikcoin:1545124652383469719>\n`,
+        `**Ta place :** ${myIndex + 1}ᵉ avec **${myBalance}** <:magikcoin:1545128700985614336>\n`,
       );
     } else {
       descriptionLines.push(
-        "**Ta place :** Tu n'as pas encore de <:magikcoin:1545124652383469719>.\n",
+        "**Ta place :** Tu n'as pas encore de <:magikcoin:1545128700985614336>.\n",
       );
     }
 
@@ -64,7 +64,7 @@ export async function execute(interaction, pool) {
       const prefix = MEDALS[index] || `**${index + 1}.**`;
       // Correction ici : passage de row.userid à row.user_id
       descriptionLines.push(
-        `${prefix} <@${row.user_id}> — **${row.balance}** <:magikcoin:1545124652383469719>`,
+        `${prefix} <@${row.user_id}> — **${row.balance}** <:magikcoin:1545128700985614336>`,
       );
     });
 

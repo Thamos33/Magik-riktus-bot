@@ -11,21 +11,21 @@ import { getBalance, removeBalance } from '../utils/balance.js';
 export const data = new SlashCommandBuilder()
   .setName('removecoin')
   .setDescription(
-    "Retire des <:magikcoin:1545124652383469719> d'un utilisateur (Admin)",
+    "Retire des <:magikcoin:1545128700985614336> d'un utilisateur (Admin)",
   )
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
   .addUserOption((option) =>
     option
       .setName('utilisateur')
       .setDescription(
-        "L'utilisateur qui perdra les <:magikcoin:1545124652383469719>",
+        "L'utilisateur qui perdra les <:magikcoin:1545128700985614336>",
       )
       .setRequired(true),
   )
   .addIntegerOption((option) =>
     option
       .setName('montant')
-      .setDescription('Nombre de <:magikcoin:1545124652383469719> à retirer')
+      .setDescription('Nombre de <:magikcoin:1545128700985614336> à retirer')
       .setMinValue(1)
       .setRequired(true),
   );
@@ -58,10 +58,10 @@ export async function execute(interaction, pool) {
     const newBalance = await getBalance(target.id, pool);
 
     const embed = new EmbedBuilder()
-      .setTitle('Perte de <:magikcoin:1545124652383469719>')
+      .setTitle('Perte de <:magikcoin:1545128700985614336>')
       .setDescription(
-        `**${amount}** <:magikcoin:1545124652383469719> ont été retirés à ${target}.\n` +
-          `Nouveau solde : **${newBalance}** <:magikcoin:1545124652383469719>`,
+        `**${amount}** <:magikcoin:1545128700985614336> ont été retirés à ${target}.\n` +
+          `Nouveau solde : **${newBalance}** <:magikcoin:1545128700985614336>`,
       )
       .setColor('#9E0E40')
       .setTimestamp();

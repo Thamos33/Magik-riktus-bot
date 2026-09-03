@@ -33,7 +33,7 @@ function chunkArray(array, size) {
 export const data = new SlashCommandBuilder()
   .setName('classementgeneral')
   .setDescription(
-    'Affiche le classement complet des <:magikcoin:1545124652383469719>',
+    'Affiche le classement complet des <:magikcoin:1545128700985614336>',
   );
 
 /**
@@ -53,7 +53,7 @@ export async function execute(interaction, pool) {
     if (nonZeroRanking.length === 0) {
       return interaction.editReply({
         content:
-          '<:magikcoin:1545124652383469719> Personne ne possède de <:magikcoin:1545124652383469719> pour le moment !',
+          '<:magikcoin:1545128700985614336> Personne ne possède de <:magikcoin:1545128700985614336> pour le moment !',
       });
     }
 
@@ -86,7 +86,7 @@ export async function execute(interaction, pool) {
           : `Utilisateur ${row.user_id}`;
 
         const prefix = MEDALS[globalRank - 1] || `**${globalRank}.**`;
-        return `${prefix} **${name}** — **${row.balance}** <:magikcoin:1545124652383469719>`;
+        return `${prefix} **${name}** — **${row.balance}** <:magikcoin:1545128700985614336>`;
       });
 
       const embedTitle =

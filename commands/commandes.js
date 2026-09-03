@@ -21,15 +21,15 @@ export async function execute(interaction) {
       '🔹 **/magik-rusher** : Règles de l’événement Magik-Rusher',
       '🔹 **/fashion-riktus** : Règles du Fashion-Riktus',
       '🔹 **/solde** : Affiche ton solde ou celui d’un utilisateur',
-      '🔹 **/classement** : Top 10 des <:magikcoin:1545124652383469719>',
-      '🔹 **/classementgeneral** : Classement complet des <:magikcoin:1545124652383469719>',
+      '🔹 **/classement** : Top 10 des <:magikcoin:1545128700985614336>',
+      '🔹 **/classementgeneral** : Classement complet des <:magikcoin:1545128700985614336>',
       '🔹 **/send** : Envoyer une participation à un événement',
       '🔹 **/msgdate** : Programmer un message à envoyer ultérieurement',
     ].join('\n');
 
     const adminCommands = [
-      '🔹 **/addcoin** `@user` `montant` : Ajouter des <:magikcoin:1545124652383469719>',
-      '🔹 **/removecoin** `@user` `montant` : Retirer des <:magikcoin:1545124652383469719>',
+      '🔹 **/addcoin** `@user` `montant` : Ajouter des <:magikcoin:1545128700985614336>',
+      '🔹 **/removecoin** `@user` `montant` : Retirer des <:magikcoin:1545128700985614336>',
       '🔹 **/kdo** `@user` `quantité` : Échanger des coins contre des cadeaux',
       '🔹 **/resultat** : Consulter les soumissions du Fashion-Riktus',
       '🔹 **/fr-reset** : Réinitialiser l’événement Fashion-Riktus',
