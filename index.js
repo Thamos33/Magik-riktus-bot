@@ -97,7 +97,25 @@ async function bootstrap() {
       startScheduler(client, pool);
     });
 
-    await client.login(process.env.TOKEN);
+    async function connectWithRetry(retries = 5, delay = 5000) {
+      for (let i = 0; i < retries; i++) {
+        try {
+          await client.login(process.env.TOKEN);
+          return;
+        } catch (err) {
+          console.error(
+            `⚠️ Échec de connexion Gateway (${i + 1}/${retries}) : ${err.message}`,
+          );
+          if (i < retries - 1) {
+            await new Promise((resolve) => setTimeout(resolve, delay));
+          } else {
+            throw err;
+          }
+        }
+      }
+    }
+
+    await connectWithRetry();
   } catch (error) {
     console.error('❌ Erreur critique au démarrage :', error);
     process.exit(1);

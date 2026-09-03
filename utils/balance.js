@@ -1,5 +1,5 @@
 /**
- * Récupère le solde de Magik-Coins d'un utilisateur
+ * Récupère le solde d'un utilisateur
  *
  * @param {string} userId - L'ID Discord de l'utilisateur
  * @param {import('pg').Pool} pool - Le pool de connexion PostgreSQL
@@ -8,7 +8,7 @@
 export async function getBalance(userId, pool) {
   try {
     const res = await pool.query(
-      'SELECT balance FROM balances WHERE "userId" = $1',
+      'SELECT balance FROM balances WHERE user_id = $1',
       [userId],
     );
     return res.rows.length ? Number(res.rows[0].balance) : 0;
@@ -19,7 +19,7 @@ export async function getBalance(userId, pool) {
 }
 
 /**
- * Ajoute un montant au solde d'un utilisateur (crée l'entrée si inexistante)
+ * Ajoute un montant au solde d'un utilisateur
  *
  * @param {string} userId - L'ID Discord de l'utilisateur
  * @param {number} amount - Le montant à ajouter
@@ -29,9 +29,9 @@ export async function getBalance(userId, pool) {
 export async function addBalance(userId, amount, pool) {
   try {
     await pool.query(
-      `INSERT INTO balances ("userId", balance)
+      `INSERT INTO balances (user_id, balance)
        VALUES ($1, $2)
-       ON CONFLICT ("userId")
+       ON CONFLICT (user_id)
        DO UPDATE SET balance = balances.balance + EXCLUDED.balance`,
       [userId, amount],
     );
@@ -42,7 +42,7 @@ export async function addBalance(userId, amount, pool) {
 }
 
 /**
- * Retire un montant au solde d'un utilisateur (crée l'entrée si inexistante)
+ * Retire un montant au solde d'un utilisateur
  *
  * @param {string} userId - L'ID Discord de l'utilisateur
  * @param {number} amount - Le montant à retirer
@@ -52,9 +52,9 @@ export async function addBalance(userId, amount, pool) {
 export async function removeBalance(userId, amount, pool) {
   try {
     await pool.query(
-      `INSERT INTO balances ("userId", balance)
+      `INSERT INTO balances (user_id, balance)
        VALUES ($1, $2)
-       ON CONFLICT ("userId")
+       ON CONFLICT (user_id)
        DO UPDATE SET balance = balances.balance - EXCLUDED.balance`,
       [userId, amount],
     );
@@ -65,15 +65,15 @@ export async function removeBalance(userId, amount, pool) {
 }
 
 /**
- * Récupère le classement complet des utilisateurs trié par solde décroissant
+ * Récupère le classement complet
  *
  * @param {import('pg').Pool} pool - Le pool de connexion PostgreSQL
- * @returns {Promise<Array<{userid: string, balance: number}>>} La liste ordonnée des soldeurs
+ * @returns {Promise<Array<{user_id: string, balance: number}>>}
  */
 export async function getRanking(pool) {
   try {
     const res = await pool.query(
-      'SELECT "userId" AS userid, balance FROM balances ORDER BY balance DESC',
+      'SELECT user_id, balance FROM balances ORDER BY balance DESC',
     );
     return res.rows;
   } catch (error) {
@@ -94,7 +94,7 @@ export async function getRanking(pool) {
  */
 export async function deleteBalance(userId, pool) {
   try {
-    await pool.query('DELETE FROM balances WHERE "userId" = $1', [userId]);
+    await pool.query('DELETE FROM balances WHERE user_id = $1', [userId]);
   } catch (error) {
     console.error('❌ Erreur SQL lors de la suppression du solde :', error);
     throw new Error('Impossible de supprimer le solde.');
