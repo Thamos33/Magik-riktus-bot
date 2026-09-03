@@ -7,7 +7,7 @@ import {
   MessageFlags,
 } from 'discord.js';
 import { scheduleMessage } from '../utils/auto-send.js';
-import { addBalance, removeBalance } from '../utils/balance.js';
+import { addBalance, getBalance, removeBalance } from '../utils/balance.js';
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const EMOJI_COIN = '<:magikcoin:1545124652383469719>';
