@@ -10,7 +10,7 @@ import { scheduleMessage } from '../utils/auto-send.js';
 import { addBalance, getBalance, removeBalance } from '../utils/balance.js';
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
-const EMOJI_COIN = '<:magikcoin:1545124652383469719>';
+const EMOJI_COIN = '<:magikcoin:1545128700985614336>';
 
 // Tirage d'une carte réaliste
 function drawCard() {
@@ -360,6 +360,168 @@ export default {
           );
         }
       }
+    }
+
+    // --- 4. GESTION DE LA ROULETTE (Menu déroulant) ---
+    if (
+      interaction.isStringSelectMenu() &&
+      interaction.customId === 'roulette_type'
+    ) {
+      const game = client.tempData.get(`roulette_${interaction.user.id}`);
+
+      if (!game) {
+        return interaction.reply({
+          content:
+            '❌ Aucune partie de roulette active trouvée ou le temps a expiré.',
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+
+      const betType = interaction.values[0];
+
+      // Vérification si pari sur numéro plein sans numéro spécifié
+      if (betType === 'number' && game.chosenNumber === null) {
+        return interaction.reply({
+          content:
+            '❌ Tu dois spécifier le numéro sur lequel tu paries dans la commande : `/roulette mise:<montant> numero:<0-36>` !',
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+
+      await interaction.deferUpdate();
+
+      // Déduction de la mise au moment de la validation du pari
+      await removeBalance(interaction.user.id, game.bet, pool);
+      client.tempData.delete(`roulette_${interaction.user.id}`);
+
+      // --- TIRAGE DE LA ROULETTE (0 à 36) ---
+      const winningNumber = Math.floor(Math.random() * 37);
+
+      // Définition des cases rouges de la roulette européenne
+      const RED_NUMBERS = [
+        1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36,
+      ];
+
+      let isRed = RED_NUMBERS.includes(winningNumber);
+      let isZero = winningNumber === 0;
+
+      let colorEmoji = isZero ? '🟢' : isRed ? '🔴' : '⚫';
+      let colorName = isZero ? 'Vert' : isRed ? 'Rouge' : 'Noir';
+
+      // --- CALCUL DU GAIN ---
+      let multiplier = 0;
+      let won = false;
+      let betLabel = '';
+
+      switch (betType) {
+        case 'red':
+          betLabel = 'Couleur Rouge 🔴';
+          if (isRed) {
+            won = true;
+            multiplier = 2;
+          }
+          break;
+        case 'black':
+          betLabel = 'Couleur Noire ⚫';
+          if (!isRed && !isZero) {
+            won = true;
+            multiplier = 2;
+          }
+          break;
+        case 'even':
+          betLabel = 'Numéro Pair 🔢';
+          if (winningNumber % 2 === 0 && !isZero) {
+            won = true;
+            multiplier = 2;
+          }
+          break;
+        case 'odd':
+          betLabel = 'Numéro Impair 🔢';
+          if (winningNumber % 2 !== 0) {
+            won = true;
+            multiplier = 2;
+          }
+          break;
+        case 'low':
+          betLabel = 'Manque (1-18) 🔽';
+          if (winningNumber >= 1 && winningNumber <= 18) {
+            won = true;
+            multiplier = 2;
+          }
+          break;
+        case 'high':
+          betLabel = 'Passe (19-36) 🔼';
+          if (winningNumber >= 19 && winningNumber <= 36) {
+            won = true;
+            multiplier = 2;
+          }
+          break;
+        case 'number':
+          betLabel = `Numéro Plein (${game.chosenNumber}) 🎯`;
+          if (winningNumber === game.chosenNumber) {
+            won = true;
+            multiplier = 36;
+          }
+          break;
+      }
+
+      let resultTitle = '';
+      let resultMsg = '';
+      let embedColor = '';
+
+      if (won) {
+        const winnings = game.bet * multiplier;
+        await addBalance(interaction.user.id, winnings, pool);
+        resultTitle = '🎉 Gagné !';
+        embedColor = '#4CAF50';
+        resultMsg = `Félicitations ! Ton pari **${betLabel}** est gagnant ! Tu remportes **${winnings}** ${EMOJI_COIN} !`;
+      } else {
+        resultTitle = '💀 Perdu !';
+        embedColor = '#FF4D4D';
+        resultMsg = `Dommage ! La bille est tombée sur le mauvais numéro. Tu perds ta mise de **${game.bet}** ${EMOJI_COIN}.`;
+      }
+
+      const finalBalance = await getBalance(interaction.user.id, pool);
+
+      const embed = new EmbedBuilder()
+        .setTitle(resultTitle)
+        .setDescription(resultMsg)
+        .setColor(embedColor)
+        .addFields(
+          {
+            name: '🎰 Résultat du tirage',
+            value: `${colorEmoji} **${winningNumber}** (${colorName})`,
+            inline: true,
+          },
+          {
+            name: '🎯 Ton pari',
+            value: `${betLabel} (Mise : **${game.bet}** ${EMOJI_COIN})`,
+            inline: true,
+          },
+          {
+            name: '💳 Solde restant',
+            value: `**${finalBalance}** ${EMOJI_COIN}`,
+            inline: false,
+          },
+        )
+        .setFooter({
+          text: `Partie de ${interaction.user.displayName}`,
+          iconURL: interaction.user.displayAvatarURL(),
+        });
+
+      // Nettoyage de l'interaction éphémère
+      await interaction.editReply({
+        content:
+          '🏁 **Tirage effectué !** Le résultat a été publié dans le salon.',
+        embeds: [],
+        components: [],
+      });
+
+      // Publication du bilan public
+      return interaction.channel.send({
+        content: `🎡 **Roulette de ${interaction.user}**`,
+        embeds: [embed],
+      });
     }
   },
 };

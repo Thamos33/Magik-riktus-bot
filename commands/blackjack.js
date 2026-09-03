@@ -8,7 +8,7 @@ import {
 } from 'discord.js';
 import { addBalance, getBalance, removeBalance } from '../utils/balance.js';
 
-const EMOJI_COIN = '<:magikcoin:1545124652383469719>';
+const EMOJI_COIN = '<:magikcoin:1545128700985614336>';
 
 // Tirage d'une carte réaliste (valeur + symbole d'affichage)
 function drawCard() {
