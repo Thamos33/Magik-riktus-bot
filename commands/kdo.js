@@ -15,7 +15,9 @@ const GIFT_PRICE = 50;
  */
 export const data = new SlashCommandBuilder()
   .setName('kdo')
-  .setDescription('Donne des cadeaux en échange de Magik-Coins 🪙 (Admin)')
+  .setDescription(
+    'Donne des cadeaux en échange de <:magikcoin:1545124652383469719> (Admin)',
+  )
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
   .addUserOption((option) =>
     option
@@ -59,7 +61,7 @@ export async function execute(interaction, pool) {
     // Vérification du solde de l'utilisateur cible
     if (currentBalance < totalCost) {
       return interaction.editReply({
-        content: `⚠️ ${target} n'a pas assez de Magik-Coins. (Requis : **${totalCost}**, Solde actuel : **${currentBalance}**)`,
+        content: `⚠️ ${target} n'a pas assez de <:magikcoin:1545124652383469719>. (Requis : **${totalCost}**, Solde actuel : **${currentBalance}**)`,
       });
     }
 
@@ -71,8 +73,8 @@ export async function execute(interaction, pool) {
       .setTitle('🎁 Cadeaux distribués ! 🎁')
       .setDescription(
         `**${quantity}** cadeau(x) attribué(s) à ${target}.\n` +
-          `**${totalCost}** Magik-Coins 🪙 retirés.\n\n` +
-          `Nouveau solde : **${newBalance}** Magik-Coins 🪙`,
+          `**${totalCost}** <:magikcoin:1545124652383469719> <:magikcoin:1545124652383469719> retirés.\n\n` +
+          `Nouveau solde : **${newBalance}** <:magikcoin:1545124652383469719> <:magikcoin:1545124652383469719>`,
       )
       .setColor('#9E0E40')
       .setTimestamp();

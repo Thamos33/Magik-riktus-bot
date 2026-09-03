@@ -3,7 +3,7 @@ import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 /**
  * Constante pour le nom de la monnaie
  */
-const CURRENCY = 'Magik-Coins 🪙';
+const CURRENCY = '<:magikcoin:1545124652383469719>';
 
 /**
  * ID du salon dédié aux screens du Magik-Rusher
@@ -60,7 +60,10 @@ export async function execute(interaction) {
       )
       .addFields(
         { name: '📜 Règles Générales', value: rulesText },
-        { name: `🪙 Attribution des ${CURRENCY}`, value: pointsText },
+        {
+          name: `<:magikcoin:1545124652383469719> Attribution des ${CURRENCY}`,
+          value: pointsText,
+        },
         { name: '🏆 Consultations & Commandes', value: rankingText },
         { name: '🎁 Gains & Récompenses', value: rewardsText },
       )

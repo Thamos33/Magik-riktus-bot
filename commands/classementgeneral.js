@@ -32,7 +32,9 @@ function chunkArray(array, size) {
  */
 export const data = new SlashCommandBuilder()
   .setName('classementgeneral')
-  .setDescription('Affiche le classement complet des Magik-Coins 🪙');
+  .setDescription(
+    'Affiche le classement complet des <:magikcoin:1545124652383469719>',
+  );
 
 /**
  * Exécute la commande /classementgeneral
@@ -46,11 +48,12 @@ export async function execute(interaction, pool) {
 
   try {
     const ranking = await getRanking(pool);
-    const nonZeroRanking = ranking.filter((row) => row.balance > 0);
+    const nonZeroRanking = ranking.filter((row) => Number(row.balance) > 0);
 
     if (nonZeroRanking.length === 0) {
       return interaction.editReply({
-        content: '🪙 Personne ne possède de Magik-Coins pour le moment !',
+        content:
+          '<:magikcoin:1545124652383469719> Personne ne possède de <:magikcoin:1545124652383469719> pour le moment !',
       });
     }
 
@@ -63,7 +66,8 @@ export async function execute(interaction, pool) {
       // Récupération des membres sur le serveur pour afficher leur pseudo exact
       if (interaction.guild) {
         try {
-          const userIds = pageData.map((row) => row.userid);
+          // Correction : passage de row.userid à row.user_id
+          const userIds = pageData.map((row) => row.user_id);
           const fetchedMembers = await interaction.guild.members.fetch({
             user: userIds,
           });
@@ -75,13 +79,14 @@ export async function execute(interaction, pool) {
 
       const lines = pageData.map((row, index) => {
         const globalRank = pageIndex * ITEMS_PER_PAGE + index + 1;
-        const member = membersById.get(row.userid);
+        // Correction : passage de row.userid à row.user_id
+        const member = membersById.get(row.user_id);
         const name = member
           ? member.displayName || member.user.username
-          : `Utilisateur ${row.userid}`;
+          : `Utilisateur ${row.user_id}`;
 
         const prefix = MEDALS[globalRank - 1] || `**${globalRank}.**`;
-        return `${prefix} **${name}** — **${row.balance}** Magik-Coins 🪙`;
+        return `${prefix} **${name}** — **${row.balance}** <:magikcoin:1545124652383469719>`;
       });
 
       const embedTitle =

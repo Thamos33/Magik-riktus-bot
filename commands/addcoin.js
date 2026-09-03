@@ -10,18 +10,22 @@ import { addBalance, getBalance } from '../utils/balance.js';
  */
 export const data = new SlashCommandBuilder()
   .setName('addcoin')
-  .setDescription('Ajoute des Magik-Coins 🪙 à un utilisateur (Admin)')
+  .setDescription(
+    'Ajoute des <:magikcoin:1545124652383469719> à un utilisateur (Admin)',
+  )
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
   .addUserOption((option) =>
     option
       .setName('utilisateur')
-      .setDescription("L'utilisateur qui recevra les Magik-Coins 🪙")
+      .setDescription(
+        "L'utilisateur qui recevra les <:magikcoin:1545124652383469719>",
+      )
       .setRequired(true),
   )
   .addIntegerOption((option) =>
     option
       .setName('montant')
-      .setDescription('Nombre de Magik-Coins 🪙 à ajouter')
+      .setDescription('Nombre de <:magikcoin:1545124652383469719> à ajouter')
       .setMinValue(1)
       .setRequired(true),
   );
@@ -55,10 +59,10 @@ export async function execute(interaction, pool) {
 
     // Envoi de la réponse enrichie
     const embed = new EmbedBuilder()
-      .setTitle('Gain de Magik-Coins 🪙')
+      .setTitle('Gain de <:magikcoin:1545124652383469719>')
       .setDescription(
-        `**${amount}** Magik-Coins 🪙 ont été ajoutés à ${target}.\n` +
-          `Nouveau solde : **${newBalance}** Magik-Coins 🪙`,
+        `**${amount}** <:magikcoin:1545124652383469719> ont été ajoutés à ${target}.\n` +
+          `Nouveau solde : **${newBalance}** <:magikcoin:1545124652383469719>`,
       )
       .setColor('#5CA25F')
       .setTimestamp();

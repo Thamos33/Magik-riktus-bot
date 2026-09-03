@@ -12,7 +12,7 @@ const MEDALS = ['🥇', '🥈', '🥉'];
 export const data = new SlashCommandBuilder()
   .setName('classement')
   .setDescription(
-    'Affiche le top 10 des utilisateurs ayant le plus de Magik-Coins 🪙',
+    'Affiche le top 10 des utilisateurs ayant le plus de <:magikcoin:1545124652383469719>',
   );
 
 /**
@@ -27,18 +27,21 @@ export async function execute(interaction, pool) {
 
   try {
     const ranking = await getRanking(pool);
-    const nonZeroRanking = ranking.filter((row) => row.balance > 0);
+    const nonZeroRanking = ranking.filter((row) => Number(row.balance) > 0);
 
     if (nonZeroRanking.length === 0) {
       return interaction.editReply({
-        content: '🪙 Personne ne possède de Magik-Coins pour le moment !',
+        content:
+          'Personne ne possède de <:magikcoin:1545124652383469719> pour le moment !',
       });
     }
 
     const top10 = nonZeroRanking.slice(0, 10);
     const myBalance = await getBalance(interaction.user.id, pool);
+
+    // Correction ici : passage de row.userid à row.user_id
     const myIndex = nonZeroRanking.findIndex(
-      (row) => row.userid === interaction.user.id,
+      (row) => row.user_id === interaction.user.id,
     );
 
     const descriptionLines = [];
@@ -46,11 +49,11 @@ export async function execute(interaction, pool) {
     // Affichage du rang de l'utilisateur qui lance la commande
     if (myBalance > 0 && myIndex !== -1) {
       descriptionLines.push(
-        `**Ta place :** ${myIndex + 1}ᵉ avec **${myBalance}** Magik-Coins 🪙\n`,
+        `**Ta place :** ${myIndex + 1}ᵉ avec **${myBalance}** <:magikcoin:1545124652383469719>\n`,
       );
     } else {
       descriptionLines.push(
-        "**Ta place :** Tu n'as pas encore de Magik-Coins 🪙.\n",
+        "**Ta place :** Tu n'as pas encore de <:magikcoin:1545124652383469719>.\n",
       );
     }
 
@@ -59,8 +62,9 @@ export async function execute(interaction, pool) {
     // Construction de la liste des membres du Top 10
     top10.forEach((row, index) => {
       const prefix = MEDALS[index] || `**${index + 1}.**`;
+      // Correction ici : passage de row.userid à row.user_id
       descriptionLines.push(
-        `${prefix} <@${row.userid}> — **${row.balance}** Magik-Coins 🪙`,
+        `${prefix} <@${row.user_id}> — **${row.balance}** <:magikcoin:1545124652383469719>`,
       );
     });
 

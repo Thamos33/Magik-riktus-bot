@@ -43,7 +43,7 @@ export async function execute(interaction, pool) {
     const isSelf = target.id === interaction.user.id;
     const embed = new EmbedBuilder()
       .setTitle(isSelf ? 'Mon solde' : `Le solde de ${displayName}`)
-      .setDescription(`**${balance}** Magik-Coins 🪙`)
+      .setDescription(`**${balance}** <:magikcoin:1545124652383469719>`)
       .setColor('#165416')
       .setTimestamp();
 

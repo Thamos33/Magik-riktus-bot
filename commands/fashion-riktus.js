@@ -3,7 +3,7 @@ import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 /**
  * Constante pour le nom de la monnaie
  */
-const CURRENCY = 'Magik-Coins 🪙';
+const CURRENCY = 'Magik-Coins <:magikcoin:1545124652383469719>';
 
 /**
  * Configuration de la commande Slash /fashion-riktus
