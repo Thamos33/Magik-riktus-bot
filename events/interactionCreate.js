@@ -157,77 +157,26 @@ export default {
 
       await interaction.deferUpdate();
 
-      // Action: Doubler la mise (Double Down)
-      if (interaction.customId === 'bj_double') {
-        // Retirer la seconde mise
-        await removeBalance(interaction.user.id, game.bet, pool);
-        game.bet *= 2;
-
-        // Tirer UNE SEULE carte supplémentaire
-        game.playerHand.push(drawCard());
-        const playerScore = calculateScore(game.playerHand);
-
+      // Fonction utilitaire pour envoyer le bilan final publiquement
+      const sendFinalResult = async (
+        title,
+        description,
+        color,
+        playerScore,
+        dealerScore,
+      ) => {
         client.tempData.delete(`bj_${interaction.user.id}`);
 
-        if (playerScore > 21) {
-          const embed = new EmbedBuilder()
-            .setTitle('💥 Éliminé en doublant ! (Bust)')
-            .setDescription(
-              `Tu as tiré un \`${game.playerHand[game.playerHand.length - 1].name}\` et dépassé 21 avec un total de **${playerScore}** !\nTu perds ta mise doublée de **${game.bet}** ${EMOJI_COIN}.`,
-            )
-            .setColor('#FF4D4D')
-            .addFields(
-              {
-                name: 'Tes cartes',
-                value: `${formatHand(game.playerHand)} (Total: ${playerScore})`,
-                inline: true,
-              },
-              {
-                name: 'Croupier',
-                value: `${formatHand(game.dealerHand)}`,
-                inline: true,
-              },
-            );
-          return interaction.editReply({ embeds: [embed], components: [] });
-        }
-
-        // Si pas de bust, le croupier tire ses cartes
-        let dealerScore = calculateScore(game.dealerHand);
-        while (dealerScore < 17) {
-          game.dealerHand.push(drawCard());
-          dealerScore = calculateScore(game.dealerHand);
-        }
-
-        let resultTitle = '';
-        let resultColor = '';
-        let resultMsg = '';
-
-        if (dealerScore > 21 || playerScore > dealerScore) {
-          const winnings = game.bet * 2;
-          await addBalance(interaction.user.id, winnings, pool);
-
-          resultTitle = '🎉 Victoire Doublée !';
-          resultColor = '#4CAF50';
-          resultMsg = `Bravo ! Ton risque a payé, tu remportes **${winnings}** ${EMOJI_COIN} !`;
-        } else if (playerScore === dealerScore) {
-          await addBalance(interaction.user.id, game.bet, pool);
-
-          resultTitle = '🤝 Égalité !';
-          resultColor = '#FFC107';
-          resultMsg = `Égalité ! Ta mise doublée de **${game.bet}** ${EMOJI_COIN} t'est restituée.`;
-        } else {
-          resultTitle = '💀 Défaite !';
-          resultColor = '#FF4D4D';
-          resultMsg = `Le croupier gagne avec ${dealerScore}. Tu perds ta mise doublée de **${game.bet}** ${EMOJI_COIN}.`;
-        }
+        // Récupération du solde actuel mis à jour
+        const finalBalance = await getBalance(interaction.user.id, pool);
 
         const embed = new EmbedBuilder()
-          .setTitle(resultTitle)
-          .setDescription(resultMsg)
-          .setColor(resultColor)
+          .setTitle(title)
+          .setDescription(description)
+          .setColor(color)
           .addFields(
             {
-              name: '🃏 Tes cartes',
+              name: '🃏 Cartes du joueur',
               value: `${formatHand(game.playerHand)} (Total : **${playerScore}**)`,
               inline: true,
             },
@@ -236,9 +185,85 @@ export default {
               value: `${formatHand(game.dealerHand)} (Total : **${dealerScore}**)`,
               inline: true,
             },
-          );
+            {
+              name: '💳 Solde restant',
+              value: `**${finalBalance}** ${EMOJI_COIN}`,
+              inline: false,
+            },
+          )
+          .setFooter({
+            text: `Partie de ${interaction.user.displayName}`,
+            iconURL: interaction.user.displayAvatarURL(),
+          });
 
-        return interaction.editReply({ embeds: [embed], components: [] });
+        // 1. On nettoie l'interaction éphémère du joueur
+        await interaction.editReply({
+          content:
+            '🏁 **Partie terminée !** Le résultat a été publié dans le salon.',
+          embeds: [],
+          components: [],
+        });
+
+        // 2. On publie le résultat dans le salon (visible par tous)
+        await interaction.channel.send({
+          content: `🎰 **Résultat du Blackjack de ${interaction.user}**`,
+          embeds: [embed],
+        });
+      };
+
+      // Action: Doubler la mise (Double Down)
+      if (interaction.customId === 'bj_double') {
+        await removeBalance(interaction.user.id, game.bet, pool);
+        game.bet *= 2;
+
+        game.playerHand.push(drawCard());
+        const playerScore = calculateScore(game.playerHand);
+
+        if (playerScore > 21) {
+          const dealerScore = calculateScore(game.dealerHand);
+          return sendFinalResult(
+            '💥 Éliminé en doublant ! (Bust)',
+            `Tu as tiré un \`${game.playerHand[game.playerHand.length - 1].name}\` et dépassé 21 avec un total de **${playerScore}** !\nTu perds ta mise doublée de **${game.bet}** ${EMOJI_COIN}.`,
+            '#FF4D4D',
+            playerScore,
+            dealerScore,
+          );
+        }
+
+        let dealerScore = calculateScore(game.dealerHand);
+        while (dealerScore < 17) {
+          game.dealerHand.push(drawCard());
+          dealerScore = calculateScore(game.dealerHand);
+        }
+
+        if (dealerScore > 21 || playerScore > dealerScore) {
+          const winnings = game.bet * 2;
+          await addBalance(interaction.user.id, winnings, pool);
+          return sendFinalResult(
+            '🎉 Victoire Doublée !',
+            `Bravo ! Ton risque a payé, tu remportes **${winnings}** ${EMOJI_COIN} !`,
+            '#4CAF50',
+            playerScore,
+            dealerScore,
+          );
+        } else if (playerScore === dealerScore) {
+          await addBalance(interaction.user.id, game.bet, pool);
+          return sendFinalResult(
+            '🤝 Égalité !',
+            `Égalité ! Ta mise doublée de **${game.bet}** ${EMOJI_COIN} t'est restituée.`,
+            '#FFC107',
+            playerScore,
+            dealerScore,
+          );
+        } else {
+          return sendFinalResult(
+            '💀 Défaite !',
+            `Le croupier gagne avec ${dealerScore}. Tu perds ta mise doublée de **${game.bet}** ${EMOJI_COIN}.`,
+            '#FF4D4D',
+            playerScore,
+            dealerScore,
+          );
+        }
       }
 
       // Action: Tirer une carte (Hit)
@@ -247,28 +272,14 @@ export default {
         const playerScore = calculateScore(game.playerHand);
 
         if (playerScore > 21) {
-          client.tempData.delete(`bj_${interaction.user.id}`);
-
-          const embed = new EmbedBuilder()
-            .setTitle('💥 Éliminé ! (Bust)')
-            .setDescription(
-              `Tu as dépassé 21 avec un score de **${playerScore}** !\nTu perds ta mise de **${game.bet}** ${EMOJI_COIN}.`,
-            )
-            .setColor('#FF4D4D')
-            .addFields(
-              {
-                name: 'Tes cartes',
-                value: `${formatHand(game.playerHand)} (Total: ${playerScore})`,
-                inline: true,
-              },
-              {
-                name: 'Croupier',
-                value: `${formatHand(game.dealerHand)}`,
-                inline: true,
-              },
-            );
-
-          return interaction.editReply({ embeds: [embed], components: [] });
+          const dealerScore = calculateScore(game.dealerHand);
+          return sendFinalResult(
+            '💥 Éliminé ! (Bust)',
+            `Tu as dépassé 21 avec un score de **${playerScore}** !\nTu perds ta mise de **${game.bet}** ${EMOJI_COIN}.`,
+            '#FF4D4D',
+            playerScore,
+            dealerScore,
+          );
         }
 
         const embed = new EmbedBuilder()
@@ -292,7 +303,6 @@ export default {
             },
           );
 
-        // Retrait de l'option "Doubler" dès le premier tirage
         const buttons = new ActionRowBuilder().addComponents(
           new ButtonBuilder()
             .setCustomId('bj_hit')
@@ -312,8 +322,6 @@ export default {
 
       // Action: Rester (Stand)
       if (interaction.customId === 'bj_stand') {
-        client.tempData.delete(`bj_${interaction.user.id}`);
-
         let dealerScore = calculateScore(game.dealerHand);
 
         while (dealerScore < 17) {
@@ -322,47 +330,35 @@ export default {
         }
 
         const playerScore = calculateScore(game.playerHand);
-        let resultTitle = '';
-        let resultColor = '';
-        let resultMsg = '';
 
         if (dealerScore > 21 || playerScore > dealerScore) {
           const winnings = game.bet * 2;
           await addBalance(interaction.user.id, winnings, pool);
-
-          resultTitle = '🎉 Victoire !';
-          resultColor = '#4CAF50';
-          resultMsg = `Tu remportes la partie et gagne **${winnings}** ${EMOJI_COIN} !`;
+          return sendFinalResult(
+            '🎉 Victoire !',
+            `Tu remportes la partie et gagne **${winnings}** ${EMOJI_COIN} !`,
+            '#4CAF50',
+            playerScore,
+            dealerScore,
+          );
         } else if (playerScore === dealerScore) {
           await addBalance(interaction.user.id, game.bet, pool);
-
-          resultTitle = '🤝 Égalité !';
-          resultColor = '#FFC107';
-          resultMsg = `Égalité parfaite ! Ta mise de **${game.bet}** ${EMOJI_COIN} t'a été restituée.`;
-        } else {
-          resultTitle = '💀 Défaite !';
-          resultColor = '#FF4D4D';
-          resultMsg = `Le croupier l'emporte avec ${dealerScore}. Tu perds ta mise de **${game.bet}** ${EMOJI_COIN}.`;
-        }
-
-        const embed = new EmbedBuilder()
-          .setTitle(resultTitle)
-          .setDescription(resultMsg)
-          .setColor(resultColor)
-          .addFields(
-            {
-              name: '🃏 Tes cartes',
-              value: `${formatHand(game.playerHand)} (Total : **${playerScore}**)`,
-              inline: true,
-            },
-            {
-              name: '🤖 Croupier',
-              value: `${formatHand(game.dealerHand)} (Total : **${dealerScore}**)`,
-              inline: true,
-            },
+          return sendFinalResult(
+            '🤝 Égalité !',
+            `Égalité parfaite ! Ta mise de **${game.bet}** ${EMOJI_COIN} t'a été restituée.`,
+            '#FFC107',
+            playerScore,
+            dealerScore,
           );
-
-        return interaction.editReply({ embeds: [embed], components: [] });
+        } else {
+          return sendFinalResult(
+            '💀 Défaite !',
+            `Le croupier l'emporte avec ${dealerScore}. Tu perds ta mise de **${game.bet}** ${EMOJI_COIN}.`,
+            '#FF4D4D',
+            playerScore,
+            dealerScore,
+          );
+        }
       }
     }
   },

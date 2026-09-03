@@ -82,53 +82,60 @@ export async function execute(interaction, pool) {
 
   // --- VÉRIFICATION DU BLACKJACK NATUREL (21 direct) ---
   if (playerScore === 21) {
+    let title = '';
+    let desc = '';
+    let color = '';
+
     if (dealerScore === 21) {
-      // Égalité Blackjack
       await addBalance(interaction.user.id, betAmount, pool);
-      const embed = new EmbedBuilder()
-        .setTitle('🤝 Égalité (Double Blackjack !)')
-        .setDescription(
-          `Vous avez tous les deux un Blackjack naturel ! Ta mise de **${betAmount}** ${EMOJI_COIN} t'est restituée.`,
-        )
-        .setColor('#FFC107')
-        .addFields(
-          {
-            name: '🃏 Tes cartes',
-            value: `${formatHand(playerHand)} (21)`,
-            inline: true,
-          },
-          {
-            name: '🤖 Croupier',
-            value: `${formatHand(dealerHand)} (21)`,
-            inline: true,
-          },
-        );
-      return interaction.editReply({ embeds: [embed] });
+      title = '🤝 Égalité (Double Blackjack !)';
+      desc = `Vous avez tous les deux un Blackjack naturel ! Ta mise de **${betAmount}** ${EMOJI_COIN} t'est restituée.`;
+      color = '#FFC107';
+    } else {
+      const winnings = Math.floor(betAmount * 2.5);
+      await addBalance(interaction.user.id, winnings, pool);
+      title = '🔥 BLACKJACK !';
+      desc = `Tu as un Blackjack naturel ! Tu remportes **${winnings}** ${EMOJI_COIN} (Payé 3:2) !`;
+      color = '#4CAF50';
     }
 
-    // Victoire Blackjack naturel (Payé 3:2 -> mise x 2.5)
-    const winnings = Math.floor(betAmount * 2.5);
-    await addBalance(interaction.user.id, winnings, pool);
+    const finalBalance = await getBalance(interaction.user.id, pool);
 
     const embed = new EmbedBuilder()
-      .setTitle('🔥 BLACKJACK !')
-      .setDescription(
-        `Tu as un Blackjack naturel ! Tu remportes **${winnings}** ${EMOJI_COIN} (Payé 3:2) !`,
-      )
-      .setColor('#4CAF50')
+      .setTitle(title)
+      .setDescription(desc)
+      .setColor(color)
       .addFields(
         {
-          name: '🃏 Tes cartes',
+          name: '🃏 Cartes du joueur',
           value: `${formatHand(playerHand)} (21)`,
           inline: true,
         },
         {
           name: '🤖 Croupier',
-          value: `${formatHand(dealerHand)} (Total: ${dealerScore})`,
+          value: `${formatHand(dealerHand)} (Total : ${dealerScore})`,
           inline: true,
         },
-      );
-    return interaction.editReply({ embeds: [embed] });
+        {
+          name: '💳 Solde restant',
+          value: `**${finalBalance}** ${EMOJI_COIN}`,
+          inline: false,
+        },
+      )
+      .setFooter({
+        text: `Partie de ${interaction.user.displayName}`,
+        iconURL: interaction.user.displayAvatarURL(),
+      });
+
+    await interaction.editReply({
+      content:
+        '🏁 **Partie terminée !** Le résultat a été publié dans le salon.',
+    });
+
+    return interaction.channel.send({
+      content: `🎰 **Résultat du Blackjack de ${interaction.user}**`,
+      embeds: [embed],
+    });
   }
 
   // Stockage de la partie en mémoire
@@ -172,7 +179,7 @@ export async function execute(interaction, pool) {
       .setCustomId('bj_double')
       .setLabel('Doubler ✖️2')
       .setStyle(ButtonStyle.Secondary)
-      .setDisabled(userBalance < betAmount * 2), // Désactivé si pas assez de coins pour doubler
+      .setDisabled(userBalance < betAmount * 2),
   );
 
   return interaction.editReply({ embeds: [embed], components: [buttons] });
