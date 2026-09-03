@@ -9,23 +9,14 @@ import {
 import { scheduleMessage } from '../utils/auto-send.js';
 import { addBalance, getBalance, removeBalance } from '../utils/balance.js';
 
-/**
- * Symboles & Emojis
- */
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const EMOJI_COIN = '<:magikcoin:1545124652383469719>';
 
-/**
- * Utilitaire pour tirer une carte (Valeurs 1 à 11)
- */
 function drawCard() {
-  const cards = [11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]; // 11 = As, 10 = 10/J/Q/K
+  const cards = [11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10];
   return cards[Math.floor(Math.random() * cards.length)];
 }
 
-/**
- * Calcul du score en ajustant les As si le total dépasse 21
- */
 function calculateScore(cards) {
   let score = cards.reduce((a, b) => a + b, 0);
   let aces = cards.filter((c) => c === 11).length;
@@ -37,24 +28,48 @@ function calculateScore(cards) {
   return score;
 }
 
-/**
- * Event Listener principal pour la gestion de toutes les interactions
- */
 export default {
   name: Events.InteractionCreate,
 
-  /**
-   * Exécute la logique de réception des interactions Discord
-   *
-   * @param {import('discord.js').Interaction} interaction - L'interaction reçue
-   * @param {import('discord.js').Client} client - L'instance du client Discord
-   * @param {import('pg').Pool} pool - Le pool de connexion PostgreSQL
-   * @returns {Promise<void>}
-   */
   async execute(interaction, client, pool) {
-    // --- 1. GESTION DES MODALES ---
+    // --- 1. GESTION DES COMMANDES SLASH (Priorité absolue pour répondre sous 3s) ---
+    if (interaction.isChatInputCommand()) {
+      const command = client.commands.get(interaction.commandName);
+      if (!command) return;
+
+      try {
+        await command.execute(interaction, pool);
+      } catch (err) {
+        console.error(
+          `❌ Erreur lors de l'exécution de /${interaction.commandName} :`,
+          err,
+        );
+
+        const errorMessage =
+          '❌ Une erreur est survenue lors du traitement de la commande.';
+
+        if (interaction.replied || interaction.deferred) {
+          await interaction
+            .followUp({
+              content: errorMessage,
+              flags: MessageFlags.Ephemeral,
+            })
+            .catch(() => {});
+        } else {
+          await interaction
+            .reply({
+              content: errorMessage,
+              flags: MessageFlags.Ephemeral,
+            })
+            .catch(() => {});
+        }
+      }
+      return;
+    }
+
+    // --- 2. GESTION DES MODALES ---
     if (interaction.isModalSubmit()) {
-      // Modale pour /msgdate
+      // Modale /msgdate
       if (interaction.customId === 'msgdate_modal') {
         const content = interaction.fields.getTextInputValue('message_content');
         const date = interaction.fields
@@ -109,7 +124,7 @@ export default {
         return;
       }
 
-      // Modale pour la mise au Blackjack
+      // Modale Blackjack
       if (interaction.customId === 'blackjack_bet_modal') {
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
@@ -132,14 +147,11 @@ export default {
           );
         }
 
-        // Déduction de la mise
         await removeBalance(interaction.user.id, betAmount, pool);
 
-        // Cartes initiales
         const playerHand = [drawCard(), drawCard()];
         const dealerHand = [drawCard(), drawCard()];
 
-        // Sauvegarde de la partie en mémoire
         client.tempData.set(`bj_${interaction.user.id}`, {
           bet: betAmount,
           playerHand,
@@ -185,9 +197,10 @@ export default {
           components: [buttons],
         });
       }
+      return;
     }
 
-    // --- 2. GESTION DES BOUTONS (BLACKJACK) ---
+    // --- 3. GESTION DES BOUTONS (BLACKJACK) ---
     if (interaction.isButton() && interaction.customId.startsWith('bj_')) {
       const game = client.tempData.get(`bj_${interaction.user.id}`);
 
@@ -200,7 +213,6 @@ export default {
 
       await interaction.deferUpdate();
 
-      // action: Tirer une carte
       if (interaction.customId === 'bj_hit') {
         game.playerHand.push(drawCard());
         const playerScore = calculateScore(game.playerHand);
@@ -241,7 +253,7 @@ export default {
             },
             {
               name: '🤖 Croupier',
-              value: `${game.dealerHand[0]} - ❓`,
+              value: `${dealerHand[0]} - ❓`,
               inline: true,
             },
             {
@@ -254,7 +266,6 @@ export default {
         return interaction.editReply({ embeds: [embed] });
       }
 
-      // action: Rester
       if (interaction.customId === 'bj_stand') {
         client.tempData.delete(`bj_${interaction.user.id}`);
 
@@ -307,40 +318,6 @@ export default {
           );
 
         return interaction.editReply({ embeds: [embed], components: [] });
-      }
-    }
-
-    // --- 3. GESTION DES COMMANDES SLASH ---
-    if (interaction.isChatInputCommand()) {
-      const command = client.commands.get(interaction.commandName);
-      if (!command) return;
-
-      try {
-        await command.execute(interaction, pool);
-      } catch (err) {
-        console.error(
-          `❌ Erreur lors de l'exécution de /${interaction.commandName} :`,
-          err,
-        );
-
-        const errorMessage =
-          '❌ Une erreur est survenue lors du traitement de la commande.';
-
-        if (interaction.replied || interaction.deferred) {
-          await interaction
-            .followUp({
-              content: errorMessage,
-              flags: MessageFlags.Ephemeral,
-            })
-            .catch(() => {});
-        } else {
-          await interaction
-            .reply({
-              content: errorMessage,
-              flags: MessageFlags.Ephemeral,
-            })
-            .catch(() => {});
-        }
       }
     }
   },
