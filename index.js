@@ -16,6 +16,18 @@ client.once('ready', () => {
 });
 
 console.log('Tentative de connexion à Discord...');
-client.login(process.env.TOKEN).catch((err) => {
-  console.error('❌ ERREUR DE LOGIN DISCORD :', err.message);
-});
+
+// Timeout de sécurité au bout de 10 secondes si la Gateway ne répond pas
+const loginTimeout = setTimeout(() => {
+  console.error(
+    '❌ ERREUR : La connexion à Discord prend trop de temps (Blocage réseau IP/Gateway).',
+  );
+}, 10000);
+
+client
+  .login(process.env.TOKEN)
+  .then(() => clearTimeout(loginTimeout))
+  .catch((err) => {
+    clearTimeout(loginTimeout);
+    console.error('❌ ERREUR DE LOGIN DISCORD :', err.message);
+  });
