@@ -7,7 +7,12 @@ import {
   MessageFlags,
 } from 'discord.js';
 import { scheduleMessage } from '../utils/auto-send.js';
-import { addBalance, getBalance, removeBalance } from '../utils/balance.js';
+import {
+  addBalance,
+  getBalance,
+  incrementGamesPlayed,
+  removeBalance,
+} from '../utils/balance.js';
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const EMOJI_COIN = '<:magikcoin:1545128700985614336>';
@@ -238,7 +243,12 @@ export default {
 
         if (dealerScore > 21 || playerScore > dealerScore) {
           const winnings = game.bet * 2;
-          await addBalance(interaction.user.id, winnings, pool);
+          await addBalance(
+            interaction.user.id,
+            winnings,
+            pool,
+            interaction.user.username,
+          );
           return sendFinalResult(
             '🎉 Victoire Doublée !',
             `Bravo ! Ton risque a payé, tu remportes **${winnings}** ${EMOJI_COIN} !`,
@@ -247,7 +257,12 @@ export default {
             dealerScore,
           );
         } else if (playerScore === dealerScore) {
-          await addBalance(interaction.user.id, game.bet, pool);
+          await addBalance(
+            interaction.user.id,
+            game.bet,
+            pool,
+            interaction.user.username,
+          );
           return sendFinalResult(
             '🤝 Égalité !',
             `Égalité ! Ta mise doublée de **${game.bet}** ${EMOJI_COIN} t'est restituée.`,
@@ -333,7 +348,12 @@ export default {
 
         if (dealerScore > 21 || playerScore > dealerScore) {
           const winnings = game.bet * 2;
-          await addBalance(interaction.user.id, winnings, pool);
+          await addBalance(
+            interaction.user.id,
+            winnings,
+            pool,
+            interaction.user.username,
+          );
           return sendFinalResult(
             '🎉 Victoire !',
             `Tu remportes la partie et gagne **${winnings}** ${EMOJI_COIN} !`,
@@ -342,7 +362,12 @@ export default {
             dealerScore,
           );
         } else if (playerScore === dealerScore) {
-          await addBalance(interaction.user.id, game.bet, pool);
+          await addBalance(
+            interaction.user.id,
+            game.bet,
+            pool,
+            interaction.user.username,
+          );
           return sendFinalResult(
             '🤝 Égalité !',
             `Égalité parfaite ! Ta mise de **${game.bet}** ${EMOJI_COIN} t'a été restituée.`,
@@ -389,6 +414,13 @@ export default {
       }
 
       await interaction.deferUpdate();
+
+      // Incrémentation des parties jouées et mise à jour du nom
+      await incrementGamesPlayed(
+        interaction.user.id,
+        pool,
+        interaction.user.username,
+      );
 
       // Déduction de la mise au moment de la validation du pari
       await removeBalance(interaction.user.id, game.bet, pool);
@@ -471,7 +503,12 @@ export default {
 
       if (won) {
         const winnings = game.bet * multiplier;
-        await addBalance(interaction.user.id, winnings, pool);
+        await addBalance(
+          interaction.user.id,
+          winnings,
+          pool,
+          interaction.user.username,
+        );
         resultTitle = '🎉 Gagné !';
         embedColor = '#4CAF50';
         resultMsg = `Félicitations ! Ton pari **${betLabel}** est gagnant ! Tu remportes **${winnings}** ${EMOJI_COIN} !`;

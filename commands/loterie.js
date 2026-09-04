@@ -1,5 +1,10 @@
 import { EmbedBuilder, MessageFlags, SlashCommandBuilder } from 'discord.js';
-import { addBalance, getBalance, removeBalance } from '../utils/balance.js';
+import {
+  addBalance,
+  getBalance,
+  incrementGamesPlayed,
+  removeBalance,
+} from '../utils/balance.js';
 
 const EMOJI_COIN = '<:magikcoin:1545128700985614336>';
 
@@ -62,6 +67,13 @@ export async function execute(interaction, pool) {
     );
   }
 
+  // Incrémentation du compteur de parties jouées et mise à jour du nom
+  await incrementGamesPlayed(
+    interaction.user.id,
+    pool,
+    interaction.user.username,
+  );
+
   // Déduction du prix du ticket
   await removeBalance(interaction.user.id, betAmount, pool);
 
@@ -71,7 +83,12 @@ export async function execute(interaction, pool) {
 
   // Distribution des gains si > 0
   if (winnings > 0) {
-    await addBalance(interaction.user.id, winnings, pool);
+    await addBalance(
+      interaction.user.id,
+      winnings,
+      pool,
+      interaction.user.username,
+    );
   }
 
   const finalBalance = await getBalance(interaction.user.id, pool);

@@ -6,7 +6,12 @@ import {
   MessageFlags,
   SlashCommandBuilder,
 } from 'discord.js';
-import { addBalance, getBalance, removeBalance } from '../utils/balance.js';
+import {
+  addBalance,
+  getBalance,
+  incrementGamesPlayed,
+  removeBalance,
+} from '../utils/balance.js';
 
 const EMOJI_COIN = '<:magikcoin:1545128700985614336>';
 
@@ -70,6 +75,13 @@ export async function execute(interaction, pool) {
     );
   }
 
+  // Incrémentation du compteur de parties jouées et mise à jour du nom
+  await incrementGamesPlayed(
+    interaction.user.id,
+    pool,
+    interaction.user.username,
+  );
+
   // Déduction de la mise initiale
   await removeBalance(interaction.user.id, betAmount, pool);
 
@@ -87,13 +99,23 @@ export async function execute(interaction, pool) {
     let color = '';
 
     if (dealerScore === 21) {
-      await addBalance(interaction.user.id, betAmount, pool);
+      await addBalance(
+        interaction.user.id,
+        betAmount,
+        pool,
+        interaction.user.username,
+      );
       title = '🤝 Égalité (Double Blackjack !)';
       desc = `Vous avez tous les deux un Blackjack naturel ! Ta mise de **${betAmount}** ${EMOJI_COIN} t'est restituée.`;
       color = '#FFC107';
     } else {
       const winnings = Math.floor(betAmount * 2.5);
-      await addBalance(interaction.user.id, winnings, pool);
+      await addBalance(
+        interaction.user.id,
+        winnings,
+        pool,
+        interaction.user.username,
+      );
       title = '🔥 BLACKJACK !';
       desc = `Tu as un Blackjack naturel ! Tu remportes **${winnings}** ${EMOJI_COIN} (Payé 3:2) !`;
       color = '#4CAF50';
