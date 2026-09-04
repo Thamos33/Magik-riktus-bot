@@ -103,7 +103,7 @@ export async function incrementGamesPlayed(userId, pool, username = null) {
          VALUES ($1, 0, 1)
          ON CONFLICT (user_id)
          DO UPDATE SET games_played = balances.games_played + 1`,
-        [userId],
+        [userId, 0, 1],
       );
     }
   } catch (error) {
