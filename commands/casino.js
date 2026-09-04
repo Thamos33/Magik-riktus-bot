@@ -20,12 +20,12 @@ export async function execute(interaction, pool) {
   let bonusGiven = false;
   let newBalance = currentBalance;
 
-  // Si le solde renvoie 0, on vérifie dans la base s'il possède une ligne
-  const [rows] = await pool.query('SELECT * FROM balances WHERE user_id = ?', [
+  // Syntaxe PostgreSQL : $1 au lieu de ? et result.rows au lieu de [rows]
+  const result = await pool.query('SELECT * FROM balances WHERE user_id = $1', [
     userId,
   ]);
 
-  if (rows.length === 0) {
+  if (result.rows.length === 0) {
     // Premier passage : Création du compte + attribution des 1000 coins + enregistrement du username
     await addBalance(userId, 1000, pool, interaction.user.username);
     bonusGiven = true;
