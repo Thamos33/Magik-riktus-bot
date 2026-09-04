@@ -9,6 +9,7 @@ import {
 import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
+import { pathToFileURL } from 'url'; // 👈 Import indispensable pour Render/Linux
 import { pool } from './utils/database.js';
 import { startScheduler } from './utils/scheduler.js';
 import { startHealthCheckServer } from './utils/server.js';
@@ -39,14 +40,16 @@ client.tempData = new Map();
 
 async function bootstrap() {
   try {
-    // Chargeur de commandes
+    // 1. Chargeur de commandes
     const commandsPath = path.join(process.cwd(), 'commands');
     if (fs.existsSync(commandsPath)) {
       const commandFiles = fs
         .readdirSync(commandsPath)
         .filter((f) => f.endsWith('.js'));
       for (const file of commandFiles) {
-        const command = await import(`file://${path.join(commandsPath, file)}`);
+        const filePath = path.join(commandsPath, file);
+        const command = await import(pathToFileURL(filePath).href); // 👈 Correct pour Linux
+
         if (command?.data && command?.execute) {
           client.commands.set(command.data.name, {
             data: command.data,
@@ -56,7 +59,7 @@ async function bootstrap() {
       }
     }
 
-    // Déploiement des commandes Slash
+    // 2. Déploiement des commandes Slash
     const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
     const commandsData = client.commands.map((cmd) => cmd.data.toJSON());
 
@@ -71,16 +74,15 @@ async function bootstrap() {
       console.log('✅ Commandes Slash enregistrées avec succès !');
     }
 
-    // Chargeur d'événements automatique (events/ interactionCreate, messageCreate, guildMemberRemove)
+    // 3. Chargeur d'événements automatique
     const eventsPath = path.join(process.cwd(), 'events');
     if (fs.existsSync(eventsPath)) {
       const eventFiles = fs
         .readdirSync(eventsPath)
         .filter((f) => f.endsWith('.js'));
       for (const file of eventFiles) {
-        const eventModule = await import(
-          `file://${path.join(eventsPath, file)}`
-        );
+        const filePath = path.join(eventsPath, file);
+        const eventModule = await import(pathToFileURL(filePath).href); // 👈 Correct pour Linux
         const event = eventModule.default || eventModule;
 
         if (event?.name && event?.execute) {
@@ -91,12 +93,13 @@ async function bootstrap() {
       }
     }
 
-    // Événement d'initialisation ready
+    // 4. Événement d'initialisation ready
     client.once('ready', () => {
       console.log(`✅ Connecté en tant que ${client.user.tag}`);
       startScheduler(client, pool);
     });
 
+    // 5. Connexion à Discord
     async function connectWithRetry(retries = 5, delay = 5000) {
       for (let i = 0; i < retries; i++) {
         try {
